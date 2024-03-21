@@ -1,0 +1,25 @@
+﻿.piechart-and-filter {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.all-datetimes-block {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.datetime-block {
+    display: inline;
+}
+
+.dates-divider {
+    display: inline;
+}
+
+.tags-filter {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

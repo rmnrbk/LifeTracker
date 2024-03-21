@@ -1,0 +1,86 @@
+﻿@using LifeTracker.Services
+@using LifeTracker.Models
+
+@page "/edittags"
+
+@inject TagsStateService TagsStateService
+
+<h3>Редактировать тэги</h3>
+
+<button @onclick="ToggleAddTagModal" class="btn btn-primary btn-show-model">Добавить</button>
+
+@if (IsVisibleAddTagModal)
+{
+    <AddTagModalDialog OnFinishModalCallback="OnAddModalCloseClick" />
+}
+
+@if (IsVisibleEditTagModal)
+{
+    <EditTagModalDialog EditingTagId="EditingTag.Tag.TagId" OnFinishModalCallback="OnEditModalCloseClick"/>
+}
+
+<div class="tags">
+    @foreach (var tag in DisplayedTags)
+    {
+        <div class="tags__tag-content" @onclick="() => ToggleEditTagModal(tag)">
+            <span class="tags__tag-content__title">
+                @tag.Tag.Name
+            </span>
+        </div>
+    }
+</div>
+
+
+@code {
+    private List<DisplayedTag> DisplayedTags => TagsStateService.DisplayedTags;
+
+    private bool IsVisibleAddTagModal { get; set; }
+    private bool IsVisibleEditTagModal { get; set; }
+
+    private DisplayedTag EditingTag;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await TagsStateService.SetupTagsAndActivities();
+        await UpdateView();
+    }
+
+    private void ToggleEditTagModal(DisplayedTag displayedTag)
+    {
+        if (EditingTag == null)
+        {
+            EditingTag = displayedTag;
+            IsVisibleEditTagModal = true;
+        }
+        // else
+        // {
+        //     EditingTag = null;
+        //     IsVisibleEditTagModal = false;
+        // }
+    }
+
+    private void ToggleAddTagModal()
+    {
+        IsVisibleAddTagModal = !IsVisibleAddTagModal;
+    }
+
+    private async void OnAddModalCloseClick()
+    {
+        IsVisibleAddTagModal = false;
+        await UpdateView();
+    }
+    
+    private async void OnEditModalCloseClick()
+    {
+        IsVisibleEditTagModal = false;
+        EditingTag = null;
+        
+        await UpdateView();
+    }
+
+    private async Task UpdateView()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+    
+}

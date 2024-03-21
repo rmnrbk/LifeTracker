@@ -1,0 +1,65 @@
+﻿@page "/"
+@using LifeTracker.Services
+@using LifeTracker.Models
+
+@inject TagsStateService TagsStateService
+@inject NavigationManager NavigationManager
+
+
+@if (IsVisibleEditActivityModal)
+{
+    <EditActivityModalDialog EditingActivity="EditingActivity" OnFinishModalCallback="OnEditActivityModalCloseClick" />
+}
+
+<div class="header">
+    <h1>Тэги</h1>
+    <button class="edit-tags-btn" @onclick='() => NavigationManager.NavigateTo("/edittags")'>Редактировать</button>
+</div>
+
+<div class="current-tag">
+    @if (ActiveDisplayedTags.Count > 0)
+    {
+        <span class="current-tag__do-something">Выполняются:</span>
+        <div class="current-tag__active-tags">
+            @foreach(var displayedTag in ActiveDisplayedTags)
+            {
+                <span class="current-tag__element" @onclick="()=> OnActiveTagClicked(displayedTag.Tag.TagId)">@displayedTag.Tag.Name</span>
+            }
+        </div>
+    }
+    else
+    {
+        <span class="current-tag__do-nothing">Сейчас ничего не выполняется</span>
+    }
+</div>
+
+<MyTags OnClickCallback="OnChangeHandler"/>
+
+
+@code {
+    private List<DisplayedTag> ActiveDisplayedTags => TagsStateService.ActiveDisplayedTags;
+    
+    private bool IsVisibleEditActivityModal { get; set; }
+    private Activity EditingActivity { get; set; }
+
+    private async void OnChangeHandler()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnActiveTagClicked(int tagId)
+    {
+        EditingActivity = await TagsStateService.GetCurrActivity(tagId);
+        IsVisibleEditActivityModal = true;
+        
+        await InvokeAsync(StateHasChanged); 
+    }
+
+    private async Task OnEditActivityModalCloseClick()
+    {
+        IsVisibleEditActivityModal = false;
+        EditingActivity = null;
+        
+        await InvokeAsync(StateHasChanged); 
+    }
+}

@@ -1,0 +1,57 @@
+﻿.my-background {
+    display:block;
+    background-color: rgba(10, 10, 10, 0.8);
+}
+
+.tag-name-input {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.parent-item {
+    display: block;
+    height: 30px;
+    font-size: 20px;
+}
+
+.parent-item-label {
+    margin-right: 20px;
+    user-select: none;
+}
+
+.parent-item-label:hover {
+    color: #031456;
+    font-weight: bold;
+}
+
+.parent-item-label-disabled {
+    font-weight: bold;
+    text-decoration: line-through;
+    margin-right: 20px;
+    user-select: none;
+}
+
+.edit-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.btn-delete {
+    color: #fff;
+    background-color: #e12250;
+    border-color: #b0193e;
+}
+
+#select-parents-label {
+    height: 30px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#editing-tag-sign {
+    color: #1861ac;
+    font-style: italic;
+    user-select: none;
+}
+

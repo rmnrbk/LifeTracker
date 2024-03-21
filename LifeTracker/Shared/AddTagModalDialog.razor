@@ -1,0 +1,119 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using LifeTracker.Models
+@using LifeTracker.Services
+
+@inject TagsStateService TagsStateService
+
+<div class="modal fade show my-background" aria-modal="true" @onkeydown="@OnKeyDown">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Выберите имя и родителей</h4>
+                <button type="button" class="btn btn-primary" @onclick="OnCloseClick">x</button>
+            </div>
+            <div class="modal-body">
+                <input class="tag-name-input" type="text" placeholder="Название тэга" @bind="NewTagName" autofocus />
+                <label id="select-parents-label">Родители:</label>
+                @foreach(var parentItem in ParentsMSList)
+                {
+                    <div class="parent-item">
+                        <input id="parent-item-id-@parentItem.Value" type="checkbox" @bind="parentItem.Selected" @onclick="(()=>HandleItemClick(parentItem))" disabled="@parentItem.Disabled"/>
+                        <label class="@(parentItem.Disabled ? "parent-item-label-disabled" : "parent-item-label")" for="parent-item-id-@parentItem.Value">@parentItem.Text</label>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="OnConfirmClick">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback OnFinishModalCallback { get; set; }
+    
+    private List<DisplayedTag> DisplayedTags => TagsStateService.DisplayedTags;
+    private MultiSelectList ParentsMSList;
+    
+    private string NewTagName { get; set; } = "";
+    private List<int> DisabledItemIds { get; set; } = new();
+    private List<int> SelectedItemIds { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        ParentsMSList = new MultiSelectList(DisplayedTags, "Tag.TagId", "Tag.Name");
+    }
+    
+    private async void HandleItemClick(SelectListItem clickedItem)
+    {
+        var clickedTagId = Convert.ToInt32(clickedItem.Value);
+        clickedItem.Selected = !clickedItem.Selected;
+        
+        SetupDisabledAndSelectedItems(clickedTagId, clickedItem.Selected);
+        UpdateParentsMSList();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void SetupDisabledAndSelectedItems(int newParentId, bool added)
+    {
+        var allParentAndChildIds = TagsStateService.GetAllParentsAndChildrenIds(newParentId);
+        
+        if (added)
+        {
+            SelectedItemIds.Add(newParentId);
+            DisabledItemIds.AddRange(allParentAndChildIds);
+        }
+        else
+        {
+            SelectedItemIds.Remove(newParentId);
+            DisabledItemIds.RemoveAll(id => allParentAndChildIds.Contains(id));
+        }
+    }
+    
+    private void UpdateParentsMSList()
+    {
+        foreach (var item in ParentsMSList)
+        {
+            var id = Convert.ToInt32(item.Value);
+            if (DisabledItemIds.Contains(id))
+            {
+                item.Disabled = true;
+            }
+            else if (SelectedItemIds.Contains(id))
+            {
+                item.Selected = true;
+            }
+            else
+            {
+                item.Disabled = false;
+                item.Selected = false;
+            }
+        }
+    }
+
+    private async Task OnCloseClick()
+    {
+        await OnFinishModalCallback.InvokeAsync();
+    }
+    
+    private async Task OnConfirmClick()
+    {
+        await TagsStateService.CreateTag(NewTagName, SelectedItemIds);
+        await TagsStateService.SetupTagsAndActivities();
+
+        await OnFinishModalCallback.InvokeAsync();
+    }
+    
+    private async void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Code == "Escape")
+        {
+            await OnCloseClick();
+        }
+        else if (e.Code is "Enter" or "NumpadEnter")
+        {
+            await OnConfirmClick();
+        }
+    }
+}

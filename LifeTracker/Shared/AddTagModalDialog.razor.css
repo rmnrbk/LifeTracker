@@ -1,0 +1,36 @@
+﻿.my-background {
+    display:block;
+    background-color: rgba(10, 10, 10, 0.8);
+}
+
+.tag-name-input {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.parent-item {
+    display: block;
+    height: 30px;
+    font-size: 20px;
+}
+
+.parent-item-label {
+    user-select: none; 
+}
+
+.parent-item-label:hover {
+    color: #031456;
+    font-weight: bold;
+}
+
+.parent-item-label-disabled {
+    font-weight: bold;
+    text-decoration: line-through;
+    user-select: none;
+}
+
+#select-parents-label {
+    height: 30px;
+    font-size: 20px;
+    font-weight: bold;
+}

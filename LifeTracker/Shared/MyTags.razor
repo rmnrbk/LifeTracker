@@ -1,0 +1,101 @@
+﻿@using LifeTracker.Services
+@using LifeTracker.Models
+
+@inject TagsStateService TagsStateService
+
+<div class="tags">
+    @foreach (var tag in DisplayedTags)
+    {
+        <div class="@(TagClassName(tag))" @onclick="() => Toggle(tag)">
+            <div class="title-and-times">
+                <span class="tags__tag-content__title">
+                    @tag.Tag.Name
+                </span>
+                @if (tag.LastStartTime != null ||
+                     tag.LastEndTime != null)
+                {
+                    <span class="last-today-times">
+                        @ToHoursMins(tag.LastStartTime) - @ToHoursMins(tag.LastEndTime)
+                    </span>
+                }
+                else
+                {
+                    <span class="last-today-times">&nbsp</span>
+                }
+            </div>
+            
+            <div class="tags__tag-content__timer">
+                @if (tag.TotalSecondsSpent == 0 && tag.LastSecondsSpent == 0)
+                {
+                    <span class="tags__tag-content__timer__total">&nbsp</span>
+                    <span class="tags__tag-content__timer__current">&nbsp</span>
+                }
+                else
+                {
+                    <span class="tags__tag-content__timer__total">
+                        @ToHoursMins(tag.TotalSecondsSpent)
+                    </span>
+                    <span class="tags__tag-content__timer__current">
+                        @ToHoursMins(tag.LastSecondsSpent)
+                    </span>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback OnClickCallback { get; set; }
+
+    private List<DisplayedTag> DisplayedTags => TagsStateService.DisplayedTags;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TagsStateService.SetupTagsAndActivities();
+        TagsStateService.SetOnChangeHandler(OnChangeHandler);
+
+        await UpdateView();
+    }
+
+    private async void OnChangeHandler()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void Toggle(DisplayedTag displayedTag)
+    {
+        await TagsStateService.Toggle(displayedTag);
+
+        await UpdateView();
+    }
+
+    private async Task UpdateView()
+    {
+        await InvokeAsync(StateHasChanged);
+        await OnClickCallback.InvokeAsync();
+    }
+
+    private string ToHoursMins(DateTime? datetime)
+    {
+        return datetime.HasValue ? datetime.Value.ToString("HH:mm") : "...";
+    }
+
+    private string ToHoursMins(int secondsSpent)
+    {
+        int hours = secondsSpent / 3600;
+        int minutes = (secondsSpent % 3600) / 60;
+        
+        return $"{hours:D2}:{minutes:D2}";
+    }
+
+    private string TagClassName(DisplayedTag displayedTag) => displayedTag.Status switch
+    {
+        DisplayedTagStatus.Inactive => "tags__tag-content",
+        DisplayedTagStatus.DependentlyActive => "tags__tag-content tags__tag-content__dependently-active",
+        DisplayedTagStatus.DependentlyDisabled => "tags__tag-content tags__tag-content__dependently-disabled",
+        _ => "tags__tag-content tags__tag-content__directly-active"
+        };
+}

@@ -1,0 +1,61 @@
+﻿.my-background {
+    display:block;
+    background-color: rgba(10, 10, 10, 0.8);
+}
+
+.my-modal-body {
+    display: flex;
+    justify-content: space-between;
+}
+
+.datetime-block {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.datetime-label {
+    margin-right: 15px;
+}
+
+.tag-name-input {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.tag-item {
+    display: flex;
+    height: 30px;
+    font-size: 20px;
+}
+
+.tag-item-radio {
+    margin-right: 5px;
+}
+
+.tag-item-label {
+    user-select: none;
+
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tag-item-label:hover {
+    color: #031456;
+    font-weight: bold;
+}
+
+.edit-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.btn-delete {
+    color: #fff;
+    background-color: #e12250;
+    border-color: #b0193e;
+}
+

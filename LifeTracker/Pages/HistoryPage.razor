@@ -1,0 +1,184 @@
+﻿@page "/history"
+@using LifeTracker.Services
+
+@inject TagsStateService TagsStateService
+
+
+@if (IsVisibleEditActivityModal)
+{
+    <EditActivityModalDialog EditingActivity="EditingActivity" OnFinishModalCallback="OnEditActivityModalCloseClick" />
+}
+
+
+<div class="all-datetimes-block">
+    <div class="datetime-block">
+        <input
+            type="date"
+            id="start-datetime"
+            class="date-time-picker"
+            @bind-value="FromDateTime"/>
+    </div>
+    
+    <Icon Name="IconName.DashLg" /> 
+    
+    <div class="datetime-block">
+        <input
+            type="date"
+            id="end-datetime"
+            class="date-time-picker"
+            @bind="ToDateTime"/>
+    </div>
+    
+    <Button Size="Size.ExtraSmall" @onclick="OnShiftDateBackClicked">
+        <Icon Name="IconName.ArrowLeftCircleFill" Size="IconSize.x5"/>
+    </Button>
+    
+    <Button Size="Size.ExtraSmall" @onclick="OnShiftDateNextClicked">
+        <Icon Name="IconName.ArrowRightCircleFill" Size="IconSize.x5"/>
+    </Button>
+</div>
+
+
+@foreach (var uniqueDate in UniqueDates)
+{
+    <span class="unique-date-label">@ToDayMonth(uniqueDate)</span>
+    
+    <div class="activities">
+        @foreach (Activity activity in DisplayedActivities.Where(a => a.Start.Date == uniqueDate.Date))
+        {
+            <div class="activity-content" @onclick="() => OnActivityClicked(activity)">
+                <span class="activity-title">
+                    @activity.Tag!.Name
+                </span>
+                <div class="activity-dates">
+                    <span class="activity-start-datetime">
+                        @ToHoursMins(activity.Start)
+                    </span>
+                    <span class="activity-end-datetime">
+                        @ToHoursMins(activity.End)
+                    </span>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+@code {
+    private bool IsVisibleEditActivityModal { get; set; }
+    private Activity EditingActivity { get; set; }
+    
+    private List<Activity> Activities => TagsStateService.Activities;
+    private List<Activity> DisplayedActivities = new();
+
+    private List<DateTime> UniqueDates = new();
+
+    private DateTime _fromDateTime = DateTime.Today;
+    private DateTime FromDateTime
+    {
+        get => _fromDateTime;
+        set
+        {
+            _fromDateTime = value;
+            if (_fromDateTime.Date > _toDateTime.Date)
+            {
+                _toDateTime = _fromDateTime + TimeSpan.FromDays(1) - TimeSpan.FromSeconds(1);
+            }
+            SetupDisplayedActivities();
+        }
+    }
+    
+    private DateTime _toDateTime = DateTime.Today + TimeSpan.FromDays(1) - TimeSpan.FromSeconds(1);
+    private DateTime ToDateTime
+    {
+        get => _toDateTime;
+        set
+        {
+            _toDateTime = value + TimeSpan.FromDays(1) - TimeSpan.FromSeconds(1);
+            if (_toDateTime.Date < _fromDateTime.Date)
+            {
+                _fromDateTime = value;
+            }
+            SetupDisplayedActivities();
+        }
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await TagsStateService.SetupTagsAndActivities();
+        FromDateTime = DateTime.Now;
+    }
+
+    private void SetupDisplayedActivities()
+    {
+        DisplayedActivities = Activities
+            .Where(IsActivityInFromToDates)
+            .OrderBy(a => a.Start)
+            .ToList();
+
+        UniqueDates = DisplayedActivities
+            .Select(a => a.Start.Date)
+            .Distinct()
+            .Order()
+            .ToList();
+        
+    }
+
+    private bool IsActivityInFromToDates(Activity a)
+    {
+        return a.Start.Date >= FromDateTime.Date && 
+               a.Start.Date <= ToDateTime.Date;
+    }
+
+    private string ToHoursMins(DateTime? datetime)
+    {
+        return datetime.HasValue ? datetime.Value.ToString("HH:mm") : "...";
+    }
+    
+    private string ToDayMonth(DateTime datetime)
+    {
+        return datetime.ToString("dd.MM");
+    }
+
+    private async Task OnActivityClicked(Activity editingActivity)
+    {
+        EditingActivity = editingActivity;
+        IsVisibleEditActivityModal = true;
+        
+        await InvokeAsync(StateHasChanged); 
+    }
+
+    private async Task OnEditActivityModalCloseClick()
+    {
+        IsVisibleEditActivityModal = false;
+        EditingActivity = null;
+
+        SetupDisplayedActivities();
+        await InvokeAsync(StateHasChanged); 
+    }
+    
+    private void OnShiftDateBackClicked()
+    {
+        if (FromDateTime.Date == ToDateTime.Date)
+        {
+            ToDateTime = ToDateTime.Date - TimeSpan.FromDays(1);
+        }
+        else
+        {
+            ToDateTime = FromDateTime;
+        }
+    }
+    
+    private void OnShiftDateNextClicked()
+    {
+        if (FromDateTime.Date == ToDateTime.Date)
+        {
+            FromDateTime = FromDateTime.Date + TimeSpan.FromDays(1);
+        }
+        else
+        {
+            FromDateTime = ToDateTime.Date;
+        }
+    }
+
+}

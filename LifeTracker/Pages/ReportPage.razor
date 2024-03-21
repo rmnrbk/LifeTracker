@@ -1,0 +1,297 @@
+﻿@page "/report"
+@using LifeTracker.Services
+@using LifeTracker.Models
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@inject TagsStateService TagsStateService
+
+<div class="piechart-and-filter">
+    <div class="my-piechart">
+        <PieChart @ref="pieChart" Width="500" Class="mb-5"/>
+    </div>
+
+    <div class="tags-filter-block">
+        <div class="all-datetimes-block">
+            <div class="datetime-block">
+                <input
+                    type="date"
+                    id="start-datetime"
+                    class="date-time-picker"
+                    @bind-value="FromDateTime"/>
+            </div>
+            
+            <Icon Name="IconName.DashLg" /> 
+            
+            <div class="datetime-block">
+                <input
+                    type="date"
+                    id="end-datetime"
+                    class="date-time-picker"
+                    @bind="ToDateTime"/>
+            </div>
+            
+            <Button Size="Size.ExtraSmall" @onclick="OnShiftDateBackClicked">
+                <Icon Name="IconName.ArrowLeftCircleFill" Size="IconSize.x5"/>
+            </Button>
+            
+            <Button Size="Size.ExtraSmall" @onclick="OnShiftDateNextClicked">
+                <Icon Name="IconName.ArrowRightCircleFill" Size="IconSize.x5"/>
+            </Button>
+        </div>
+        
+        <div class="tags-filter">
+            @if (TagsMSList != null)
+            {
+                @foreach (var tagItem in TagsMSList)
+                {
+                    <div class="tag-item">
+                        <input id="tag-item-id-@tagItem.Value" type="checkbox" @bind="tagItem.Selected" @onclick="() => HandleItemClick(tagItem)"/>
+                        <label class="tag-item-label" for="tag-item-id-@tagItem.Value">@tagItem.Text</label>
+                    </div>
+                }
+            }
+        </div>
+        
+        <div class="help-filter-btns">
+            <button class="btn btn-primary" @onclick="async () => await OnSetDefaultClicked()">Прямые</button>
+            <button class="btn btn-primary" @onclick="async () => await OnSetAllInPeriodClicked()">Косвенные</button>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private PieChart pieChart = default!;
+    private PieChartOptions pieChartOptions = default!;
+    private ChartData chartData = default!;
+
+    private static readonly string[] BackgroundColors = 
+    {
+        "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
+        "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78",
+        "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7",
+        "#dbdb8d", "#9edae5", "#393b79", "#637939", "#8c6d31", "#843c39",
+        "#7b4173", "#5254a3", "#637b8d", "#8ca252", "#b5cf6b", "#cedb9c"
+    };
+
+    private int datasetsCount = 1;
+    private int dataLabelsCount;
+    
+    
+    private List<DisplayedTag> DisplayedTags { get; set; }
+    
+    private MultiSelectList TagsMSList;
+    private List<DisplayedTag> FilteredTags { get; set; }
+    
+    private DateTime _fromDateTime = DateTime.Today;
+    private DateTime FromDateTime
+    {
+        get => _fromDateTime;
+        set
+        {
+            _fromDateTime = value;
+            if (_fromDateTime.Date > _toDateTime.Date)
+            {
+                _toDateTime = _fromDateTime + TimeSpan.FromDays(1) - TimeSpan.FromSeconds(1);
+            }
+            OnDateChanged();
+        }
+    }
+    
+    private DateTime _toDateTime = DateTime.Today + TimeSpan.FromDays(1) - TimeSpan.FromSeconds(1);
+    private DateTime ToDateTime
+    {
+        get => _toDateTime;
+        set
+        {
+            _toDateTime = value + TimeSpan.FromDays(1) - TimeSpan.FromSeconds(1);
+            if (_toDateTime.Date < _fromDateTime.Date)
+            {
+                _fromDateTime = value;
+            }
+            OnDateChanged();
+        }
+    }
+    
+
+    protected override void OnInitialized()
+    {
+        pieChartOptions = new PieChartOptions
+        {
+            Responsive = true,
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await TagsStateService.SetupTagsAndActivities();
+            InitializeData();
+            await InvokeAsync(StateHasChanged);
+            await pieChart.InitializeAsync(chartData, pieChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void InitializeData()
+    {
+        DisplayedTags = DisplayedTagMapper.FromTagsAndActivities(TagsStateService.Tags, TagsStateService.Activities, FromDateTime, ToDateTime);
+        var directlyActiveIds = GetDirectlyActiveIds(DisplayedTags);
+        FilteredTags = new (DisplayedTags);
+        FilteredTags.RemoveAll(dt => !directlyActiveIds.Contains(dt.Tag.TagId));
+
+        var filteredTagIds = FilteredTags.Select(dt => dt.Tag.TagId).ToList();
+        
+        TagsMSList = new MultiSelectList(DisplayedTags, "Tag.TagId", "Tag.Name");
+        foreach (var item in TagsMSList)
+        {
+            if (filteredTagIds.Contains(Convert.ToInt32(item.Value)))
+                item.Selected = true;
+        }
+        
+        chartData = new ChartData
+        {
+            Labels = GetTagsNames(),
+            Datasets = GetTagsTotalTimeSpent(),
+        };
+    }
+    
+    private void UpdateData()
+    {
+        FilteredTags = new(DisplayedTags
+            .Where(dt => IsTagSelected(dt.Tag.TagId)));
+        
+        chartData = new ChartData
+        {
+            Labels = GetTagsNames(),
+            Datasets = GetTagsTotalTimeSpent(),
+        };
+    }
+
+    private async void OnDateChanged()
+    {
+        InitializeData();
+        await pieChart.UpdateAsync(chartData, pieChartOptions); 
+    }
+
+    private bool IsTagSelected(int tagId)
+    {
+        return TagsMSList.First(item => Convert.ToInt32(item.Value) == tagId).Selected;
+    }
+
+    private async Task HandleItemClick(SelectListItem clickedItem)
+    {
+        clickedItem.Selected = !clickedItem.Selected;
+
+        UpdateData();
+        await pieChart.UpdateAsync(chartData, pieChartOptions);
+    }
+
+    private void OnShiftDateBackClicked()
+    {
+        if (FromDateTime.Date == ToDateTime.Date)
+        {
+            ToDateTime = ToDateTime.Date - TimeSpan.FromDays(1);
+        }
+        else
+        {
+            ToDateTime = FromDateTime;
+        }
+    }
+    
+    private void OnShiftDateNextClicked()
+    {
+        if (FromDateTime.Date == ToDateTime.Date)
+        {
+            FromDateTime = FromDateTime.Date + TimeSpan.FromDays(1);
+        }
+        else
+        {
+            FromDateTime = ToDateTime.Date;
+        }
+    }
+
+    private async Task OnSetAllInPeriodClicked()
+    {
+        var nonZeroSecondsSpentIds = DisplayedTags
+            .Where(dt => dt.TotalSecondsSpent > 0)
+            .Select(dt => dt.Tag.TagId)
+            .ToList();
+        foreach (var item in TagsMSList)
+        {
+            item.Selected = nonZeroSecondsSpentIds.Contains(Convert.ToInt32(item.Value));
+        }
+        
+        UpdateData();
+        await pieChart.UpdateAsync(chartData, pieChartOptions);
+    }
+
+    private async Task OnSetDefaultClicked()
+    {
+        var directlyActiveIds = GetDirectlyActiveIds(DisplayedTags);
+        
+        foreach (var item in TagsMSList)
+        {
+            item.Selected = directlyActiveIds.Contains(Convert.ToInt32(item.Value));
+        }
+        
+        UpdateData();
+        await pieChart.UpdateAsync(chartData, pieChartOptions);
+    }
+
+    private List<int> GetDirectlyActiveIds(List<DisplayedTag> displayedTags)
+    {
+        return DisplayedTags
+            .Where(dt => dt.LastStartTime != null)
+            .Select(dt => dt.Tag.TagId)
+            .ToList(); 
+    }
+
+    private List<string> GetTagsNames()
+    {
+        dataLabelsCount = FilteredTags.Count;
+        return FilteredTags
+            .Select(dt => dt.Tag.Name)
+            .ToList();
+    }
+    
+    private List<IChartDataset> GetTagsTotalTimeSpent()
+    {
+        var data = FilteredTags
+            .Select(dt => dt.TotalSecondsSpent)
+            .Select(ToDoubleHours)
+            .ToList();
+        
+        var datasets = new List<IChartDataset>();
+        datasets.Add(new PieChartDataset
+        {
+            Label = "ч,м",
+            Data = data,
+            BackgroundColor = GetRandomBackgroundColors()
+        });
+        return datasets;
+    }
+
+    private double ToDoubleHours(int secondsSpent)
+    {
+        int hours = secondsSpent / 3600;
+        int minutes = (secondsSpent % 3600) / 60;
+        return (double)hours + (double)minutes / 100;
+
+        // double hours = Math.Round(secondsSpent / 3600.0, 2);
+        // return hours;
+    }
+
+    private List<string> GetRandomBackgroundColors()
+    {
+        var colors = new List<string>();
+        for (var index = 0; index < dataLabelsCount; index++)
+        {
+            colors.Add(BackgroundColors![index]);
+        }
+
+        return colors;
+    }
+
+}

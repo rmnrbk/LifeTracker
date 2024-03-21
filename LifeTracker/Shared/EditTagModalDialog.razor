@@ -1,0 +1,169 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using LifeTracker.Models
+@using LifeTracker.Services
+@using NuGet.Packaging
+
+@inject TagsStateService TagsStateService
+
+<div class="modal fade show my-background" aria-modal="true" @onkeydown="@OnKeyDown" autofocus >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Редактировать тэг</h4>
+                <button type="button" class="btn btn-primary" @onclick="OnCloseClick">x</button>
+            </div>
+            <div class="modal-body">
+                <input class="tag-name-input" type="text" placeholder="Tag name" @bind="NewTagName"/>
+                <label id="select-parents-label">Родители:</label>
+                @foreach(var parentItem in ParentsMSList)
+                {
+                    <div class="parent-item">
+                        <input id="parent-item-id-@parentItem.Value" type="checkbox" @bind="parentItem.Selected" @onclick="(()=>HandleItemClick(parentItem))" disabled="@parentItem.Disabled"/>
+                        <label class="@(parentItem.Disabled ? "parent-item-label-disabled" : "parent-item-label")" for="parent-item-id-@parentItem.Value">@parentItem.Text</label>
+                        @if (Convert.ToInt32(parentItem.Value) == EditingTagId)
+                        {
+                            <label id="editing-tag-sign">~~~</label>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="modal-footer edit-footer">
+                <button type="button" class="btn btn-delete" @onclick="OnDeleteClick">Удалить</button>
+                <button type="button" class="btn btn-primary" @onclick="OnConfirmClick">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback OnFinishModalCallback { get; set; }
+    
+    [Parameter]
+    public int EditingTagId { get; set; }
+    
+    private List<DisplayedTag> DisplayedTags => TagsStateService.DisplayedTags;
+    private MultiSelectList ParentsMSList;
+    
+    private List<int> DisabledItemIds { get; set; } = new();
+    private List<int> SelectedItemIds { get; set; } = new();
+    
+    private string NewTagName { get; set; } = "";
+
+    protected override void OnInitialized()
+    {
+        var editingTag = DisplayedTags.First(dt => dt.Tag.TagId == EditingTagId).Tag;
+        
+        ParentsMSList = new MultiSelectList(DisplayedTags, "Tag.TagId", "Tag.Name");
+        NewTagName = editingTag.Name;
+        
+        var allParentsParentAndChildIds = new List<int>();
+        
+        var directParentIds = editingTag.Parents.Select(p => p.TagId).ToList();
+        directParentIds.ForEach(pId =>
+        {
+            allParentsParentAndChildIds.AddRange(TagsStateService.GetAllParentsAndChildrenIds(pId));
+        });
+        
+        // Self child also can not be parent
+        allParentsParentAndChildIds.AddRange(editingTag.GetAllChildren().Select(c => c.TagId));
+        
+        allParentsParentAndChildIds.RemoveAll(id => id == EditingTagId);
+        SelectedItemIds.AddRange(directParentIds);
+        DisabledItemIds.AddRange(allParentsParentAndChildIds);
+        DisabledItemIds.Add(EditingTagId);
+
+        UpdateParentsMSList();
+    }
+    
+    private void UpdateParentsMSList()
+    {
+        foreach (var item in ParentsMSList)
+        {
+            var id = Convert.ToInt32(item.Value);
+            if (DisabledItemIds.Contains(id))
+            {
+                item.Disabled = true;
+            }
+            else if (SelectedItemIds.Contains(id))
+            {
+                item.Selected = true;
+            }
+            else if (id == EditingTagId)
+            {
+                item.Disabled = true;
+            }
+            else
+            {
+                item.Disabled = false;
+                item.Selected = false;
+            }
+        }
+    }
+
+    private async void HandleItemClick(SelectListItem clickedItem)
+    {
+        var clickedTagId = Convert.ToInt32(clickedItem.Value);
+        
+        clickedItem.Selected = !clickedItem.Selected;
+        var directParentIds = ParentsMSList
+            .Where(item => item.Selected)
+            .Select(item => Convert.ToInt32(item.Value))
+            .ToList();
+
+        var allParentsParentAndChildIds = new List<int>();
+        directParentIds.ForEach(pId =>
+        {
+            allParentsParentAndChildIds.AddRange(TagsStateService.GetAllParentsAndChildrenIds(pId));
+        });
+        
+        allParentsParentAndChildIds.AddRange(TagsStateService.GetAllParentsAndChildrenIds(EditingTagId));
+        allParentsParentAndChildIds.RemoveAll(id => id == clickedTagId);
+        
+        SelectedItemIds = directParentIds;
+        DisabledItemIds = allParentsParentAndChildIds;
+        
+        UpdateParentsMSList();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnCloseClick()
+    {
+        await OnFinishModalCallback.InvokeAsync();
+    }
+    
+    private async Task OnConfirmClick()
+    {
+        // TODO: validate name
+        
+        var newDirectParentIds = ParentsMSList
+            .Where(item => item.Selected)
+            .Select(item => Convert.ToInt32(item.Value))
+            .ToList();
+        
+        await TagsStateService.EditTag(EditingTagId, NewTagName, newDirectParentIds);
+        await TagsStateService.SetupTagsAndActivities();
+
+        await OnFinishModalCallback.InvokeAsync();
+    }
+    
+    private async Task OnDeleteClick()
+    {
+        await TagsStateService.DeleteTag(EditingTagId);
+        await TagsStateService.SetupTagsAndActivities();
+
+        await OnFinishModalCallback.InvokeAsync();
+    }
+    
+    private async void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Code == "Escape")
+        {
+            await OnCloseClick();
+        }
+        else if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await OnConfirmClick();
+        }
+    }
+}

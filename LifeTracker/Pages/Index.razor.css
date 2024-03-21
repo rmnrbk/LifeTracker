@@ -1,0 +1,64 @@
+﻿.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.header h1 {
+    margin-bottom: 30px;
+    display: inline-block;
+}
+
+.edit-tags-btn {
+    display: inline-block;
+    height: 40px;
+    border-radius: 8px;
+    background-color: white;
+    
+    margin-top: 10px;
+}
+
+.edit-tags-btn:hover {
+    background-color: #f0f8ff;
+}
+
+.current-tag {
+    margin-bottom: 40px;
+    height: 90px;
+}
+
+.current-tag__do-nothing {
+    font-size: 30px;
+    text-align: center;
+    display: block;
+}
+
+.current-tag__do-something {
+    font-size: 30px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.current-tag__active-tags {
+    padding-left: 25px;
+}
+
+.current-tag__element {
+    font-size: 25px;
+    display: inline-block;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 2px solid #545454;
+    border-radius: 8px;
+
+    user-select: none;
+    cursor: pointer
+}
+
+.current-tag__element:hover {
+    background-color: #f0f8ff;
+}
+
+.tags {
+    text-align: start;
+}
