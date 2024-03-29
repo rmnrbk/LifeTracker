@@ -82,251 +82,253 @@ public static class SeedData
         string days3BeforeTodayDate = (DateTime.Today.Date - TimeSpan.FromDays(3)).Date.ToShortDateString();
         string days4BeforeTodayDate = (DateTime.Today.Date - TimeSpan.FromDays(4)).Date.ToShortDateString();
 
+        var dateTimeFormat = "MM/dd/yyyy HH:mm:ss";
+
         Activity[] activities =
         {
             new()
             {
                 Tag = tag14,
-                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 09:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days4BeforeTodayDate} 10:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 09:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days4BeforeTodayDate} 10:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag9,
-                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 10:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days4BeforeTodayDate} 13:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 10:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days4BeforeTodayDate} 13:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 13:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days4BeforeTodayDate} 16:30:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 13:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days4BeforeTodayDate} 16:30:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag12,
-                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 16:40:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days4BeforeTodayDate} 17:20:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 16:40:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days4BeforeTodayDate} 17:20:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 17:20:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days4BeforeTodayDate} 23:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 17:20:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days4BeforeTodayDate} 23:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag2,
-                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 23:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days4BeforeTodayDate} 23:38:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 23:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days4BeforeTodayDate} 23:38:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 23:40:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days4BeforeTodayDate} 23:56:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days4BeforeTodayDate} 23:40:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days4BeforeTodayDate} 23:56:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag10,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 00:08:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 09:09:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 00:08:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 09:09:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag12,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 09:09:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 09:18:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 09:09:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 09:18:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag14,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 09:19:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 09:38:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 09:19:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 09:38:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag2,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 09:47:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 10:15:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 09:47:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 10:15:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag9,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 10:15:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 13:31:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 10:15:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 13:31:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag2,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 14:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 14:10:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 14:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 14:10:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 17:19:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 19:06:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 17:19:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 19:06:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 20:07:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 22:01:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 20:07:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 22:01:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 22:41:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 23:16:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 22:41:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 23:16:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag2,
-                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 23:23:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days3BeforeTodayDate} 23:44:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days3BeforeTodayDate} 23:23:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days3BeforeTodayDate} 23:44:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag10,
-                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 00:35:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days2BeforeTodayDate} 09:07:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 00:35:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days2BeforeTodayDate} 09:07:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag14,
-                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 09:09:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days2BeforeTodayDate} 10:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 09:09:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days2BeforeTodayDate} 10:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag9,
-                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 10:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days2BeforeTodayDate} 13:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 10:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days2BeforeTodayDate} 13:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 13:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days2BeforeTodayDate} 16:30:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 13:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days2BeforeTodayDate} 16:30:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag12,
-                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 16:40:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days2BeforeTodayDate} 17:20:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 16:40:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days2BeforeTodayDate} 17:20:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 17:20:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days2BeforeTodayDate} 23:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 17:20:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days2BeforeTodayDate} 23:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag2,
-                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 23:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{days2BeforeTodayDate} 23:38:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 23:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{days2BeforeTodayDate} 23:38:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag10,
-                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 23:30:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 08:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{days2BeforeTodayDate} 23:30:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 08:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag12,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 09:09:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 09:18:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 09:09:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 09:18:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag14,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 09:19:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 09:38:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 09:19:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 09:38:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag2,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 09:47:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 10:15:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 09:47:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 10:15:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag9,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 10:15:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 13:31:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 10:15:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 13:31:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag2,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 14:00:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 14:10:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 14:00:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 14:10:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 17:19:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 19:06:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 17:19:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 19:06:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 20:07:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 22:01:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 20:07:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 22:01:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag5,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 22:41:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 23:16:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 22:41:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 23:16:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag2,
-                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 23:23:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{day1BeforeTodayDate} 23:44:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{day1BeforeTodayDate} 23:23:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{day1BeforeTodayDate} 23:44:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
 
             new()
             {
                 Tag = tag10,
-                Start = DateTime.ParseExact($"{todayDate} 00:35:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                End = DateTime.ParseExact($"{todayDate} 09:07:00", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                Start = DateTime.ParseExact($"{todayDate} 00:35:00", dateTimeFormat, CultureInfo.InvariantCulture),
+                End = DateTime.ParseExact($"{todayDate} 09:07:00", dateTimeFormat, CultureInfo.InvariantCulture),
             },
         };
 

@@ -156,47 +156,6 @@ public class TagsStateService
         DisplayedTag.OnChange += onChangeHandler;
     }
 
-    private void SetupReachableTagIds(TagRelations relations)
-    {
-        var tags = DisplayedTags.Select(dt => dt.Tag).ToList();
-        var oldEdges = EdgesMapper.MapTagsToEdges(tags);
-        var newEdges = UpdateParentEdges(oldEdges, relations);
-
-        var reachableExceptParentsIds = FindReachableNodes(newEdges, relations.TagId);
-        
-        // Exclude direct parents and self
-        reachableExceptParentsIds.RemoveAll(id => relations.DirectParentIds.Contains(id) || id == relations.TagId);
-        
-        relations.ReachableExceptParentsIds = reachableExceptParentsIds;
-    }
-
-    private List<(int, int)> UpdateParentEdges(List<(int, int)> oldEdges, TagRelations relations)
-    {
-        var newEdges = new List<(int, int)>(oldEdges);
-        // Remove all edges from editing tag to parents
-        newEdges.RemoveAll(e => e.Item2 == relations.TagId);
-        
-        // Add selected edges from editing tag to parents
-        var newDirectParentEdges = relations.DirectParentIds
-            .Select(pId => (pId, relations.TagId))
-            .ToList();
-        newEdges.AddRange(newDirectParentEdges);
-
-        return newEdges;
-    }
-
-    private void SetupCanBeParentIds(TagRelations relations)
-    {
-        // All except reachable nodes and self
-        relations.CanBeParentIds = DisplayedTags
-            .Select(dt => dt.Tag.TagId)
-            .Where(pId =>
-                !relations.DirectParentIds.Contains(pId) &&
-                !relations.ReachableExceptParentsIds.Contains(pId) &&
-                relations.TagId != pId)
-            .ToList();
-    }
-
     private bool IsNameValid(string name)
     {
         if (name.Length < 2)
