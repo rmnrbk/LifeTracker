@@ -3,3 +3,8 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+https/
+.idea/
+docker-compose.*
+*.pfx
+appsettings.Development.json
