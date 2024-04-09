@@ -1,17 +1,22 @@
-﻿using LifeTracker.Entity;
-using LifeTracker.Models;
+﻿using LifeTracker.Models;
+using LifeTracker.Models.BaseModels;
 
-namespace LifeTracker.Services;
+namespace LifeTracker.Mappers;
 
-public static class DisplayedTagMapper
+public class DisplayedTagMapper
 {
-    public static List<DisplayedTag> FromTagsAndTodayActivities(List<Tag> tags, List<Activity> activities, bool enableTimer=false)
+    public List<DisplayedTag> MapTagsAndActivities(List<Tag> tags, List<Activity> activities)
+    {
+        return FromTagsAndTodayActivities(tags, activities, true);
+    }
+    
+    public List<DisplayedTag> FromTagsAndTodayActivities(List<Tag> tags, List<Activity> activities, bool enableTimer=false)
     {
         return FromTagsAndActivities(tags, activities, DateTime.Today, 
             DateTime.Today + TimeSpan.FromDays(1), enableTimer);
     }
     
-    public static List<DisplayedTag> FromTagsAndActivities(List<Tag> tags, List<Activity> activities, 
+    public List<DisplayedTag> FromTagsAndActivities(List<Tag> tags, List<Activity> activities, 
         DateTime fromDateTime, DateTime toDateTime, bool enableTimer=false)
     {
         var intervalActivities = ActivitiesFromInterval(activities, fromDateTime, toDateTime);
@@ -28,14 +33,14 @@ public static class DisplayedTagMapper
         
         runningActivities.ForEach(a =>
         {
-            var relatedTag = tags.First(t => t.TagId == a.TagId);
+            var relatedTag = tags.First(t => t.Id == a.TagId);
             var currParentsTagIds = relatedTag
                 .GetAllParents()
-                .Select(t => t.TagId)
+                .Select(t => t.Id)
                 .ToList();
             var currChildrenTagIds = relatedTag
                 .GetAllChildren()
-                .Select(t => t.TagId)
+                .Select(t => t.Id)
                 .ToList();
             
             dependentlyActiveTagIds.AddRange(currParentsTagIds);
@@ -45,11 +50,11 @@ public static class DisplayedTagMapper
         foreach (var tag in tags)
         {
             var status = DisplayedTagStatus.Inactive;
-            if (directlyActiveTagIds.Contains(tag.TagId))
+            if (directlyActiveTagIds.Contains(tag.Id))
                 status = DisplayedTagStatus.DirectlyActive;
-            else if (dependentlyActiveTagIds.Contains(tag.TagId))
+            else if (dependentlyActiveTagIds.Contains(tag.Id))
                 status = DisplayedTagStatus.DependentlyActive;
-            else if (dependentlyDisabledTagIds.Contains(tag.TagId))
+            else if (dependentlyDisabledTagIds.Contains(tag.Id))
                 status = DisplayedTagStatus.DependentlyDisabled;
 
             var lastSecondsSpent = 0;
@@ -60,7 +65,7 @@ public static class DisplayedTagMapper
                 case DisplayedTagStatus.DirectlyActive:
                 {
                     var start = runningActivities
-                        .First(a => a.TagId == tag.TagId)
+                        .First(a => a.TagId == tag.Id)
                         .Start;
                     lastSecondsSpent = (int)((DateTime.Now < toDateTime ? DateTime.Now : toDateTime) - start).TotalSeconds;
                     totalSecondsSpent = CalcTotalDuration(tag, intervalActivities, fromDateTime, toDateTime) + lastSecondsSpent;
@@ -70,18 +75,18 @@ public static class DisplayedTagMapper
                 {
                     childrenActivated = tag
                         .GetAllChildren()
-                        .Count(t => directlyActiveTagIds.Contains(t.TagId));
+                        .Count(t => directlyActiveTagIds.Contains(t.Id));
                     
                     var earliestActiveChildTag = tag    // TODO: calculate using runningActivities, not tags
                         .GetAllChildren()
-                        .Where(t => directlyActiveTagIds.Contains(t.TagId))
+                        .Where(t => directlyActiveTagIds.Contains(t.Id))
                         .Aggregate((earliest, current) =>
-                            runningActivities.First(a => a.TagId == current.TagId).Start < 
-                            runningActivities.First(a => a.TagId == earliest.TagId).Start ? 
+                            runningActivities.First(a => a.TagId == current.Id).Start < 
+                            runningActivities.First(a => a.TagId == earliest.Id).Start ? 
                                 current : earliest);
                 
                     var start = runningActivities
-                        .First(a => a.TagId == earliestActiveChildTag.TagId)
+                        .First(a => a.TagId == earliestActiveChildTag.Id)
                         .Start;
                     lastSecondsSpent = (int)((DateTime.Now < toDateTime ? DateTime.Now : toDateTime) - start).TotalSeconds;
                     totalSecondsSpent = CalcTotalDuration(tag, intervalActivities, fromDateTime, toDateTime) + lastSecondsSpent;
@@ -89,12 +94,12 @@ public static class DisplayedTagMapper
                 }
                 default:
                 {
-                    var childIds = tag.GetAllChildren().Select(t => t.TagId);
+                    var childIds = tag.GetAllChildren().Select(t => t.Id);
                     var childActivities = intervalActivities
                         .Where(a => childIds.Contains(a.TagId))
                         .ToList();
                     var selfActivities = intervalActivities
-                        .Where(a => a.TagId == tag.TagId)
+                        .Where(a => a.TagId == tag.Id)
                         .ToList();
                     
                     Activity? latestChildActivity = childActivities.Any() ?
@@ -139,7 +144,7 @@ public static class DisplayedTagMapper
 
             var tagDirectActivities = intervalActivities
                 .Where(a => 
-                    a.TagId == tag.TagId  
+                    a.TagId == tag.Id  
                     // && a.Start.Date == DateTime.Now.Date
                     )
                 .ToList();
@@ -174,8 +179,8 @@ public static class DisplayedTagMapper
         {
             displayedTags.ForEach(dt =>
             {
-                if (directlyActiveTagIds.Contains(dt.Tag.TagId) ||
-                    dependentlyActiveTagIds.Contains(dt.Tag.TagId))
+                if (directlyActiveTagIds.Contains(dt.Tag.Id) ||
+                    dependentlyActiveTagIds.Contains(dt.Tag.Id))
                 {
                     dt.EnableTimer(false);
                 }
@@ -186,8 +191,8 @@ public static class DisplayedTagMapper
             .OrderByDescending(t => t.TotalSecondsSpent)
             .ToList();
     }
-
-    private static List<Activity> ActivitiesFromInterval(List<Activity> activities, DateTime fromDateTime, DateTime toDateTime)
+    
+    public List<Activity> ActivitiesFromInterval(List<Activity> activities, DateTime fromDateTime, DateTime toDateTime)
     {
         if (fromDateTime > DateTime.Now)
             return new List<Activity>();
@@ -202,124 +207,8 @@ public static class DisplayedTagMapper
         });
         return actsFromInterval;
     }
-
-    // public static List<DisplayedTag> MapDisplayedTags(List<Tag> tags, List<Activity> activities)
-    // {
-    //     var displayedTags = new List<DisplayedTag>();
-    //     
-    //     var runningActivities = activities
-    //         .Where(a => a.End == null)
-    //         .ToList();
-    //     
-    //     // Find running tags and its parents and children
-    //     var directlyActiveTagIds = runningActivities.Select(a => a.TagId).ToList();
-    //     var dependentlyActiveTagIds = new List<int>();
-    //     var dependentlyDisabledTagIds = new List<int>();
-    //     
-    //     runningActivities.ForEach(a =>
-    //     {
-    //         var relatedTag = tags.First(t => t.TagId == a.TagId);
-    //         var currParentsTagIds = relatedTag
-    //             .GetAllParents()
-    //             .Select(t => t.TagId)
-    //             .ToList();
-    //         var currChildrenTagIds = relatedTag
-    //             .GetAllChildren()
-    //             .Select(t => t.TagId)
-    //             .ToList();
-    //         
-    //         dependentlyActiveTagIds.AddRange(currParentsTagIds);
-    //         dependentlyDisabledTagIds.AddRange(currChildrenTagIds);
-    //     });
-    //     
-    //     foreach (var tag in tags)
-    //     {
-    //         var status = DisplayedTagStatus.Inactive;
-    //         if (directlyActiveTagIds.Contains(tag.TagId))
-    //             status = DisplayedTagStatus.DirectlyActive;
-    //         else if (dependentlyActiveTagIds.Contains(tag.TagId))
-    //             status = DisplayedTagStatus.DependentlyActive;
-    //         else if (dependentlyDisabledTagIds.Contains(tag.TagId))
-    //             status = DisplayedTagStatus.DependentlyDisabled;
-    //
-    //         var currDuration = 0;
-    //         var currChildActivated = 0;
-    //         switch (status)
-    //         {
-    //             case DisplayedTagStatus.DirectlyActive:
-    //             {
-    //                 var start = runningActivities
-    //                     .First(a => a.TagId == tag.TagId)
-    //                     .Start;
-    //                 currDuration = Convert.ToInt32((DateTime.Now - start).TotalSeconds);
-    //                 break;
-    //             }
-    //             case DisplayedTagStatus.DependentlyActive:
-    //             {
-    //                 currChildActivated = tag
-    //                     .GetAllChildren()
-    //                     .Count(t => directlyActiveTagIds.Contains(t.TagId));
-    //                 
-    //                 var activeChildTag = tag
-    //                     .GetAllChildren()
-    //                     .First(t => directlyActiveTagIds.Contains(t.TagId));    // TODO: choose most early started, not random
-    //             
-    //                 var start = runningActivities
-    //                     .First(a => a.TagId == activeChildTag.TagId)
-    //                     .Start;
-    //                 currDuration = Convert.ToInt32((DateTime.Now - start).TotalSeconds);
-    //                 break;
-    //             }
-    //         }
-    //
-    //         var totalDuration = CalcTotalDuration(tag, activities) + currDuration;
-    //
-    //         var todayActivities = activities
-    //             .Where(a => 
-    //                 a.TagId == tag.TagId  &&
-    //                 a.Start.Date == DateTime.Now.Date).ToList();
-    //         
-    //         var lastActivity = todayActivities.Any()
-    //             ? todayActivities.Aggregate((max, current) =>
-    //                 current.Start > max.Start ? current : max)
-    //             : null;
-    //
-    //         DateTime? lastTodayStartTime = null;
-    //         DateTime? lastTodayEndTime = null;
-    //         if (lastActivity != null)
-    //         {
-    //             lastTodayStartTime = lastActivity.Start;
-    //             lastTodayEndTime = lastActivity.End;
-    //         }
-    //         
-    //         var displayedTag = new DisplayedTag
-    //         {
-    //             Tag = tag,
-    //             LastSecondsSpent = currDuration,
-    //             TotalSecondsSpent = totalDuration,
-    //             LastStartTime = lastTodayStartTime,
-    //             LastEndTime = lastTodayEndTime,
-    //             Status = status,
-    //             ChildrenActivated = currChildActivated
-    //         };
-    //         displayedTags.Add(displayedTag);
-    //     }
-    //     
-    //     displayedTags.ForEach(dt =>
-    //     {
-    //         if (directlyActiveTagIds.Contains(dt.Tag.TagId) ||
-    //             dependentlyActiveTagIds.Contains(dt.Tag.TagId))
-    //         {
-    //             dt.EnableTimer();
-    //         }
-    //     });
-    //
-    //     return displayedTags
-    //         .OrderByDescending(t => t.TotalSecondsSpent)
-    //         .ToList();
-    // }
-
-    private static int CalcTotalDuration(Tag tag, List<Activity> activities, DateTime fromDateTime, DateTime toDateTime)
+    
+    private int CalcTotalDuration(Tag tag, List<Activity> activities, DateTime fromDateTime, DateTime toDateTime)
     {
         var relatedActivities = GetRelatedActivities(tag, activities);
         relatedActivities.RemoveAll(a => a.End is null);
@@ -354,21 +243,20 @@ public static class DisplayedTagMapper
         return (int)totalTime.TotalSeconds;
     }
 
-    private static List<Activity> GetRelatedActivities(Tag tag, List<Activity> activities)
+    private List<Activity> GetRelatedActivities(Tag tag, List<Activity> activities)
     {
         var relatedTagIds = tag.GetAllChildren()
-            .Select(t => t.TagId)
+            .Select(t => t.Id)
             .ToList();
-        relatedTagIds.Add(tag.TagId);
+        relatedTagIds.Add(tag.Id);
 
         var relatedActivities = activities
             .Where(a => 
-                relatedTagIds.Contains(a.TagId) 
+                    relatedTagIds.Contains(a.TagId) 
                 // && a.Start.Date == DateTime.Now.Date
-                )
+            )
             .ToList();
         
         return relatedActivities;
     }
-
 }

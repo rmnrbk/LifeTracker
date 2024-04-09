@@ -3,7 +3,8 @@
 @using LifeTracker.Services
 @using NuGet.Packaging
 
-@inject TagsStateService TagsStateService
+@inject EntityService EntityService
+
 
 <div class="modal fade show my-background" aria-modal="true" @onkeydown="@OnKeyDown" autofocus >
     <div class="modal-dialog">
@@ -15,16 +16,19 @@
             <div class="modal-body">
                 <input class="tag-name-input" type="text" placeholder="Tag name" @bind="NewTagName"/>
                 <label id="select-parents-label">Родители:</label>
-                @foreach(var parentItem in ParentsMSList)
+                @if (ParentsMSList != null)
                 {
-                    <div class="parent-item">
-                        <input id="parent-item-id-@parentItem.Value" type="checkbox" @bind="parentItem.Selected" @onclick="(()=>HandleItemClick(parentItem))" disabled="@parentItem.Disabled"/>
-                        <label class="@(parentItem.Disabled ? "parent-item-label-disabled" : "parent-item-label")" for="parent-item-id-@parentItem.Value">@parentItem.Text</label>
-                        @if (Convert.ToInt32(parentItem.Value) == EditingTagId)
-                        {
-                            <label id="editing-tag-sign">~~~</label>
-                        }
-                    </div>
+                    @foreach (var parentItem in ParentsMSList)
+                    {
+                        <div class="parent-item">
+                            <input id="parent-item-id-@parentItem.Value" type="checkbox" @bind="parentItem.Selected" @onclick="(() => HandleItemClick(parentItem))" disabled="@parentItem.Disabled"/>
+                            <label class="@(parentItem.Disabled ? "parent-item-label-disabled" : "parent-item-label")" for="parent-item-id-@parentItem.Value">@parentItem.Text</label>
+                            @if (Convert.ToInt32(parentItem.Value) == EditingTagId)
+                            {
+                                <label id="editing-tag-sign">~~~</label>
+                            }
+                        </div>
+                    }
                 }
             </div>
             <div class="modal-footer edit-footer">
@@ -35,14 +39,14 @@
     </div>
 </div>
 
+
 @code {
     [Parameter]
     public EventCallback OnFinishModalCallback { get; set; }
     
     [Parameter]
     public int EditingTagId { get; set; }
-    
-    private List<DisplayedTag> DisplayedTags => TagsStateService.DisplayedTags;
+
     private MultiSelectList ParentsMSList;
     
     private List<int> DisabledItemIds { get; set; } = new();
@@ -50,23 +54,25 @@
     
     private string NewTagName { get; set; } = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        var editingTag = DisplayedTags.First(dt => dt.Tag.TagId == EditingTagId).Tag;
+        await EntityService.InitializeAsync();
+        var tags = await EntityService.GetTagsAsync();
+        var editingTag = tags.First(t => t.Id == EditingTagId);
         
-        ParentsMSList = new MultiSelectList(DisplayedTags, "Tag.TagId", "Tag.Name");
+        ParentsMSList = new MultiSelectList(tags, "Id", "Name");
         NewTagName = editingTag.Name;
         
         var allParentsParentAndChildIds = new List<int>();
         
-        var directParentIds = editingTag.Parents.Select(p => p.TagId).ToList();
-        directParentIds.ForEach(pId =>
+        var directParentIds = editingTag.Parents.Select(p => p.Id).ToList();
+        foreach (var pId in directParentIds)
         {
-            allParentsParentAndChildIds.AddRange(TagsStateService.GetAllParentsAndChildrenIds(pId));
-        });
+            allParentsParentAndChildIds.AddRange(await EntityService.GetAllParentsAndChildrenIdsAsync(pId));
+        }
         
         // Self child also can not be parent
-        allParentsParentAndChildIds.AddRange(editingTag.GetAllChildren().Select(c => c.TagId));
+        allParentsParentAndChildIds.AddRange(editingTag.GetAllChildren().Select(c => c.Id));
         
         allParentsParentAndChildIds.RemoveAll(id => id == EditingTagId);
         SelectedItemIds.AddRange(directParentIds);
@@ -101,7 +107,7 @@
         }
     }
 
-    private async void HandleItemClick(SelectListItem clickedItem)
+    private async Task HandleItemClick(SelectListItem clickedItem)
     {
         var clickedTagId = Convert.ToInt32(clickedItem.Value);
         
@@ -112,12 +118,13 @@
             .ToList();
 
         var allParentsParentAndChildIds = new List<int>();
-        directParentIds.ForEach(pId =>
-        {
-            allParentsParentAndChildIds.AddRange(TagsStateService.GetAllParentsAndChildrenIds(pId));
-        });
         
-        allParentsParentAndChildIds.AddRange(TagsStateService.GetAllParentsAndChildrenIds(EditingTagId));
+        foreach (var pId in directParentIds)
+        {
+            allParentsParentAndChildIds.AddRange(await EntityService.GetAllParentsAndChildrenIdsAsync(pId));
+        }
+        
+        allParentsParentAndChildIds.AddRange(await EntityService.GetAllParentsAndChildrenIdsAsync(EditingTagId));
         allParentsParentAndChildIds.RemoveAll(id => id == clickedTagId);
         
         SelectedItemIds = directParentIds;
@@ -141,16 +148,14 @@
             .Select(item => Convert.ToInt32(item.Value))
             .ToList();
         
-        await TagsStateService.EditTag(EditingTagId, NewTagName, newDirectParentIds);
-        await TagsStateService.SetupTagsAndActivities();
+        await EntityService.EditTagAsync(EditingTagId, NewTagName, newDirectParentIds);
 
         await OnFinishModalCallback.InvokeAsync();
     }
     
     private async Task OnDeleteClick()
     {
-        await TagsStateService.DeleteTag(EditingTagId);
-        await TagsStateService.SetupTagsAndActivities();
+        await EntityService.DeleteTagAsync(EditingTagId);
 
         await OnFinishModalCallback.InvokeAsync();
     }

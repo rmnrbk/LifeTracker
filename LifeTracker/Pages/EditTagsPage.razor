@@ -1,9 +1,11 @@
 ﻿@using LifeTracker.Services
 @using LifeTracker.Models
+@using LifeTracker.Models.BaseModels
 
 @page "/edittags"
 
-@inject TagsStateService TagsStateService
+@inject EntityService EntityService
+
 
 <h3>Редактировать тэги</h3>
 
@@ -16,15 +18,15 @@
 
 @if (IsVisibleEditTagModal)
 {
-    <EditTagModalDialog EditingTagId="EditingTag.Tag.TagId" OnFinishModalCallback="OnEditModalCloseClick"/>
+    <EditTagModalDialog EditingTagId="EditingTag.Id" OnFinishModalCallback="OnEditModalCloseClick"/>
 }
 
 <div class="tags">
-    @foreach (var tag in DisplayedTags)
+    @foreach (var tag in Tags)
     {
         <div class="tags__tag-content" @onclick="() => ToggleEditTagModal(tag)">
             <span class="tags__tag-content__title">
-                @tag.Tag.Name
+                @tag.Name
             </span>
         </div>
     }
@@ -32,31 +34,25 @@
 
 
 @code {
-    private List<DisplayedTag> DisplayedTags => TagsStateService.DisplayedTags;
+    private List<Tag> Tags => EntityService.GetTags();
+    private Tag EditingTag;
 
     private bool IsVisibleAddTagModal { get; set; }
     private bool IsVisibleEditTagModal { get; set; }
-
-    private DisplayedTag EditingTag;
     
     protected override async Task OnInitializedAsync()
     {
-        await TagsStateService.SetupTagsAndActivities();
-        await UpdateView();
+        await EntityService.InitializeAsync();
+        // await UpdateView();
     }
 
-    private void ToggleEditTagModal(DisplayedTag displayedTag)
+    private void ToggleEditTagModal(Tag tag)
     {
         if (EditingTag == null)
         {
-            EditingTag = displayedTag;
+            EditingTag = tag;
             IsVisibleEditTagModal = true;
         }
-        // else
-        // {
-        //     EditingTag = null;
-        //     IsVisibleEditTagModal = false;
-        // }
     }
 
     private void ToggleAddTagModal()

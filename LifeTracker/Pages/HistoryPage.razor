@@ -1,7 +1,8 @@
 ﻿@page "/history"
 @using LifeTracker.Services
+@using LifeTracker.Models.BaseModels
 
-@inject TagsStateService TagsStateService
+@inject EntityService EntityService
 
 
 @if (IsVisibleEditActivityModal)
@@ -68,7 +69,6 @@
     private bool IsVisibleEditActivityModal { get; set; }
     private Activity EditingActivity { get; set; }
     
-    private List<Activity> Activities => TagsStateService.Activities;
     private List<Activity> DisplayedActivities = new();
 
     private List<DateTime> UniqueDates = new();
@@ -105,13 +105,13 @@
     
     protected override async Task OnInitializedAsync()
     {
-        await TagsStateService.SetupTagsAndActivities();
+        await EntityService.InitializeAsync();
         FromDateTime = DateTime.Now;
     }
 
     private void SetupDisplayedActivities()
     {
-        DisplayedActivities = Activities
+        DisplayedActivities = EntityService.GetActivities()
             .Where(IsActivityInFromToDates)
             .OrderBy(a => a.Start)
             .ToList();
@@ -121,7 +121,6 @@
             .Distinct()
             .Order()
             .ToList();
-        
     }
 
     private bool IsActivityInFromToDates(Activity a)

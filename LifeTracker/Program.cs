@@ -1,4 +1,5 @@
-using LifeTracker.Data;
+using LifeTracker.DataAccess;
+using LifeTracker.Mappers;
 using LifeTracker.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,11 +32,15 @@ builder.Services
     .AddEntityFrameworkStores<AuthContext>();
 
 builder.Services.AddHttpClient();
-builder.Services.AddDbContextFactory<TagStoreContext>(options => options.UseNpgsql(tagsCs));
-builder.Services.AddDbContext<TagStoreContext>(options => options.UseNpgsql(tagsCs));
 
-builder.Services.AddScoped<TagsStateService>();
-builder.Services.AddScoped<TagsCRUDService>();
+builder.Services.AddDbContextFactory<AppDbContext>(options => options.UseNpgsql(tagsCs));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(tagsCs));
+
+builder.Services.AddScoped<DisplayedTagMapper>();
+builder.Services.AddScoped<DisplayedTagService>();
+builder.Services.AddScoped<ReportService>();
+builder.Services.AddScoped<EntityService>();
+builder.Services.AddScoped<IEntityRepository, EntityRepository>();
 
 var app = builder.Build();
 
@@ -62,7 +67,7 @@ if (!app.Environment.IsProduction())
 {
     var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
     using var scope = scopeFactory.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<TagStoreContext>();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
     db.Database.EnsureDeleted();
     if (db.Database.EnsureCreated())

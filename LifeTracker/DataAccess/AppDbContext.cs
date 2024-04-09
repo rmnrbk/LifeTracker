@@ -1,16 +1,15 @@
-﻿using LifeTracker.Entity;
+﻿using LifeTracker.Models.BaseModels;
 using Microsoft.EntityFrameworkCore;
-using System;
 
-namespace LifeTracker.Data;
+namespace LifeTracker.DataAccess;
 
-public class TagStoreContext: DbContext
+public class AppDbContext: DbContext
 {
     
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Activity> Activities { get; set; }
     
-    public TagStoreContext(DbContextOptions<TagStoreContext> options) : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
         Database.EnsureCreated();
     }

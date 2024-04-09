@@ -1,9 +1,11 @@
 ﻿@page "/"
 @using LifeTracker.Services
 @using LifeTracker.Models
+@using LifeTracker.Models.BaseModels
 
-@inject TagsStateService TagsStateService
 @inject NavigationManager NavigationManager
+@inject EntityService EntityService
+@inject DisplayedTagService DTService
 
 
 @if (IsVisibleEditActivityModal)
@@ -17,13 +19,13 @@
 </div>
 
 <div class="current-tag">
-    @if (ActiveDisplayedTags.Count > 0)
+    @if (ActiveDTags.Count > 0)
     {
         <span class="current-tag__do-something">Выполняются:</span>
         <div class="current-tag__active-tags">
-            @foreach(var displayedTag in ActiveDisplayedTags)
+            @foreach(var activeDTag in ActiveDTags)
             {
-                <span class="current-tag__element" @onclick="()=> OnActiveTagClicked(displayedTag.Tag.TagId)">@displayedTag.Tag.Name</span>
+                <span class="current-tag__element" @onclick="()=> OnActiveTagClicked(activeDTag.Tag.Id)">@activeDTag.Tag.Name</span>
             }
         </div>
     }
@@ -37,7 +39,7 @@
 
 
 @code {
-    private List<DisplayedTag> ActiveDisplayedTags => TagsStateService.ActiveDisplayedTags;
+    private List<DisplayedTag> ActiveDTags => DTService.ActiveDTags;
     
     private bool IsVisibleEditActivityModal { get; set; }
     private Activity EditingActivity { get; set; }
@@ -49,7 +51,7 @@
 
     private async Task OnActiveTagClicked(int tagId)
     {
-        EditingActivity = await TagsStateService.GetCurrActivity(tagId);
+        EditingActivity = await EntityService.GetRunningActivityAsync(tagId);
         IsVisibleEditActivityModal = true;
         
         await InvokeAsync(StateHasChanged); 
@@ -57,6 +59,7 @@
 
     private async Task OnEditActivityModalCloseClick()
     {
+        DTService.Update(EditingActivity.TagId);
         IsVisibleEditActivityModal = false;
         EditingActivity = null;
         

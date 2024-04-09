@@ -1,4 +1,4 @@
-﻿using LifeTracker.Entity;
+﻿using LifeTracker.Models.BaseModels;
 
 namespace LifeTracker.Models;
 

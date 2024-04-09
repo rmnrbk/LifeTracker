@@ -1,26 +1,23 @@
 ﻿@inherits LayoutComponentBase
-
-<PageTitle>Life Tracker</PageTitle>
+@inject NavigationManager NavigationManager
 
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
-
     <main>
         <div class="top-row px-4">
             <span >&nbsp</span>
         </div>
-
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
 
-@inject NavigationManager NavigationManager
-@code{ 
+<PageTitle>Life Tracker</PageTitle>
 
+@code{ 
     [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
 
     protected override async Task OnInitializedAsync()

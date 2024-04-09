@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LifeTracker.Entity;
+namespace LifeTracker.Models.BaseModels;
 
 public class Tag
 {
     [Key]
-    public int TagId { get; set; }
+    public int Id { get; set; }
     
     [Required]
     public string OwnerID { get; set; }

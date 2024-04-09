@@ -1,9 +1,9 @@
 ﻿@page "/report"
 @using LifeTracker.Services
-@using LifeTracker.Models
 @using Microsoft.AspNetCore.Mvc.Rendering
 
-@inject TagsStateService TagsStateService
+@inject EntityService EntityService
+@inject ReportService ReportService
 
 <div class="piechart-and-filter">
     <div class="my-piechart">
@@ -19,9 +19,9 @@
                     class="date-time-picker"
                     @bind-value="FromDateTime"/>
             </div>
-            
-            <Icon Name="IconName.DashLg" /> 
-            
+
+            <Icon Name="IconName.DashLg"/>
+
             <div class="datetime-block">
                 <input
                     type="date"
@@ -29,16 +29,16 @@
                     class="date-time-picker"
                     @bind="ToDateTime"/>
             </div>
-            
+
             <Button Size="Size.ExtraSmall" @onclick="OnShiftDateBackClicked">
                 <Icon Name="IconName.ArrowLeftCircleFill" Size="IconSize.x5"/>
             </Button>
-            
+
             <Button Size="Size.ExtraSmall" @onclick="OnShiftDateNextClicked">
                 <Icon Name="IconName.ArrowRightCircleFill" Size="IconSize.x5"/>
             </Button>
         </div>
-        
+
         <div class="tags-filter">
             @if (TagsMSList != null)
             {
@@ -51,7 +51,7 @@
                 }
             }
         </div>
-        
+
         <div class="help-filter-btns">
             <button class="btn btn-primary" @onclick="async () => await OnSetDefaultClicked()">Прямые</button>
             <button class="btn btn-primary" @onclick="async () => await OnSetAllInPeriodClicked()">Косвенные</button>
@@ -65,23 +65,7 @@
     private PieChartOptions pieChartOptions = default!;
     private ChartData chartData = default!;
 
-    private static readonly string[] BackgroundColors = 
-    {
-        "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
-        "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78",
-        "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7",
-        "#dbdb8d", "#9edae5", "#393b79", "#637939", "#8c6d31", "#843c39",
-        "#7b4173", "#5254a3", "#637b8d", "#8ca252", "#b5cf6b", "#cedb9c"
-    };
-
-    private int datasetsCount = 1;
-    private int dataLabelsCount;
-    
-    
-    private List<DisplayedTag> DisplayedTags { get; set; }
-    
     private MultiSelectList TagsMSList;
-    private List<DisplayedTag> FilteredTags { get; set; }
     
     private DateTime _fromDateTime = DateTime.Today;
     private DateTime FromDateTime
@@ -113,7 +97,7 @@
         }
     }
     
-
+    
     protected override void OnInitialized()
     {
         pieChartOptions = new PieChartOptions
@@ -126,7 +110,7 @@
     {
         if (firstRender)
         {
-            await TagsStateService.SetupTagsAndActivities();
+            await EntityService.InitializeAsync();
             InitializeData();
             await InvokeAsync(StateHasChanged);
             await pieChart.InitializeAsync(chartData, pieChartOptions);
@@ -136,36 +120,44 @@
 
     private void InitializeData()
     {
-        DisplayedTags = DisplayedTagMapper.FromTagsAndActivities(TagsStateService.Tags, TagsStateService.Activities, FromDateTime, ToDateTime);
-        var directlyActiveIds = GetDirectlyActiveIds(DisplayedTags);
-        FilteredTags = new (DisplayedTags);
-        FilteredTags.RemoveAll(dt => !directlyActiveIds.Contains(dt.Tag.TagId));
-
-        var filteredTagIds = FilteredTags.Select(dt => dt.Tag.TagId).ToList();
+        var tags = EntityService.GetTags();
+        var activities = EntityService.GetActivities();
         
-        TagsMSList = new MultiSelectList(DisplayedTags, "Tag.TagId", "Tag.Name");
+        ReportService.Initialize(tags, activities, FromDateTime, ToDateTime);
+        
+        var displayedTags = ReportService.GetDisplayedTags();
+        var filteredTagIds = ReportService
+            .GetFilteredTags()
+            .Select(dt => dt.Tag.Id)
+            .ToList();;
+        
+        TagsMSList = new MultiSelectList(displayedTags, "Tag.Id", "Tag.Name");
         foreach (var item in TagsMSList)
         {
             if (filteredTagIds.Contains(Convert.ToInt32(item.Value)))
                 item.Selected = true;
         }
-        
-        chartData = new ChartData
-        {
-            Labels = GetTagsNames(),
-            Datasets = GetTagsTotalTimeSpent(),
-        };
+
+        chartData = GenerateChartData();
     }
     
     private void UpdateData()
     {
-        FilteredTags = new(DisplayedTags
-            .Where(dt => IsTagSelected(dt.Tag.TagId)));
+        var selectedTagsIds = TagsMSList
+            .Where(i => i.Selected)
+            .Select(i => Convert.ToInt32(i.Value))
+            .ToList();
+        ReportService.FilterTags(selectedTagsIds);
         
-        chartData = new ChartData
+        chartData = GenerateChartData();
+    }
+
+    private ChartData GenerateChartData()
+    {
+        return new ChartData
         {
-            Labels = GetTagsNames(),
-            Datasets = GetTagsTotalTimeSpent(),
+            Labels = ReportService.GetTagsNames(),
+            Datasets = GetDatasets(),
         };
     }
 
@@ -173,11 +165,6 @@
     {
         InitializeData();
         await pieChart.UpdateAsync(chartData, pieChartOptions); 
-    }
-
-    private bool IsTagSelected(int tagId)
-    {
-        return TagsMSList.First(item => Convert.ToInt32(item.Value) == tagId).Selected;
     }
 
     private async Task HandleItemClick(SelectListItem clickedItem)
@@ -214,10 +201,8 @@
 
     private async Task OnSetAllInPeriodClicked()
     {
-        var nonZeroSecondsSpentIds = DisplayedTags
-            .Where(dt => dt.TotalSecondsSpent > 0)
-            .Select(dt => dt.Tag.TagId)
-            .ToList();
+        var nonZeroSecondsSpentIds = ReportService.GetNonZeroSecondsSpentIds();
+        
         foreach (var item in TagsMSList)
         {
             item.Selected = nonZeroSecondsSpentIds.Contains(Convert.ToInt32(item.Value));
@@ -229,7 +214,7 @@
 
     private async Task OnSetDefaultClicked()
     {
-        var directlyActiveIds = GetDirectlyActiveIds(DisplayedTags);
+        var directlyActiveIds = ReportService.GetDirectlyActiveIds();
         
         foreach (var item in TagsMSList)
         {
@@ -239,59 +224,21 @@
         UpdateData();
         await pieChart.UpdateAsync(chartData, pieChartOptions);
     }
-
-    private List<int> GetDirectlyActiveIds(List<DisplayedTag> displayedTags)
-    {
-        return DisplayedTags
-            .Where(dt => dt.LastStartTime != null)
-            .Select(dt => dt.Tag.TagId)
-            .ToList(); 
-    }
-
-    private List<string> GetTagsNames()
-    {
-        dataLabelsCount = FilteredTags.Count;
-        return FilteredTags
-            .Select(dt => dt.Tag.Name)
-            .ToList();
-    }
     
-    private List<IChartDataset> GetTagsTotalTimeSpent()
+    private List<IChartDataset> GetDatasets()
     {
-        var data = FilteredTags
-            .Select(dt => dt.TotalSecondsSpent)
-            .Select(ToDoubleHours)
-            .ToList();
-        
-        var datasets = new List<IChartDataset>();
-        datasets.Add(new PieChartDataset
+        var data = ReportService.GetData();
+        var bgColors = ReportService.GetRandomBackgroundColors(data.Count);
+        var datasets = new List<IChartDataset>
         {
-            Label = "ч,м",
-            Data = data,
-            BackgroundColor = GetRandomBackgroundColors()
-        });
+            new PieChartDataset
+            {
+                Label = "ч,м",
+                Data = data,
+                BackgroundColor = bgColors
+            }
+        };
         return datasets;
-    }
-
-    private double ToDoubleHours(int secondsSpent)
-    {
-        int hours = secondsSpent / 3600;
-        int minutes = (secondsSpent % 3600) / 60;
-        return (double)hours + (double)minutes / 100;
-
-        // double hours = Math.Round(secondsSpent / 3600.0, 2);
-        // return hours;
-    }
-
-    private List<string> GetRandomBackgroundColors()
-    {
-        var colors = new List<string>();
-        for (var index = 0; index < dataLabelsCount; index++)
-        {
-            colors.Add(BackgroundColors![index]);
-        }
-
-        return colors;
     }
 
 }

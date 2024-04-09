@@ -1,17 +1,17 @@
 ﻿using System.Globalization;
-using LifeTracker.Entity;
+using LifeTracker.Models.BaseModels;
 using Microsoft.AspNetCore.Identity;
 
 // ReSharper disable StringLiteralTypo
 
-namespace LifeTracker.Data;
+namespace LifeTracker.DataAccess;
 
 public static class SeedData
 {
     private static string Email = "example@example.com";
     private static string Password = "12345";
     
-    public static async Task Initialize(TagStoreContext db, UserManager<IdentityUser> userManager)
+    public static async Task Initialize(AppDbContext db, UserManager<IdentityUser> userManager)
     {
         var user = new IdentityUser
         {
@@ -82,7 +82,8 @@ public static class SeedData
         string days3BeforeTodayDate = (DateTime.Today.Date - TimeSpan.FromDays(3)).Date.ToShortDateString();
         string days4BeforeTodayDate = (DateTime.Today.Date - TimeSpan.FromDays(4)).Date.ToShortDateString();
 
-        var dateTimeFormat = "MM/dd/yyyy HH:mm:ss";
+        // var dateTimeFormat = "MM/dd/yyyy HH:mm:ss";
+        var dateTimeFormat = "dd.MM.yyyy HH:mm:ss";
 
         Activity[] activities =
         {

@@ -1,9 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering
 @using LifeTracker.Models
+@using LifeTracker.Models.BaseModels
 @using LifeTracker.Services
 @using NuGet.Packaging
 
-@inject TagsStateService TagsStateService
+@inject EntityService EntityService
 
 
 <div class="modal fade show my-background" aria-modal="true" @onkeydown="@OnKeyDown" autofocus >
@@ -14,15 +15,18 @@
                 <button type="button" class="btn btn-primary" @onclick="OnCloseClick">x</button>
             </div>
             <div class="modal-body my-modal-body">
-                <div id="tags-block">
-                    @foreach (var tagItem in TagsSelectList)
-                    {
-                        <div class="tag-item">
-                            <input class="tag-item-radio" id="tag-item-id-@tagItem.Value" type="radio" checked="@tagItem.Selected" @bind="tagItem.Selected" @onclick="() => HandleItemClick(tagItem)" name="radioname"/>
-                            <label class="tag-item-label" for="tag-item-id-@tagItem.Value">@tagItem.Text</label>
-                        </div>
-                    }
-                </div>
+                @if (TagsSelectList != null)
+                {
+                    <div id="tags-block">
+                        @foreach (var tagItem in TagsSelectList)
+                        {
+                            <div class="tag-item">
+                                <input class="tag-item-radio" id="tag-item-id-@tagItem.Value" type="radio" checked="@tagItem.Selected" @bind="tagItem.Selected" @onclick="() => HandleItemClick(tagItem)" name="radioname"/>
+                                <label class="tag-item-label" for="tag-item-id-@tagItem.Value">@tagItem.Text</label>
+                            </div>
+                        }
+                    </div>
+                }
                 <div id="all-datetimes-block">
                     <div class="datetime-block">
                         <label for="start-datetime" class="datetime-label">От:</label>
@@ -60,13 +64,12 @@
 
     private SelectList TagsSelectList;
 
-    private List<Tag> Tags => TagsStateService.Tags;
-
     private DateTime NewStartDatetime { get; set; }
     private DateTime? NewEndDatetime { get; set; }
     
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        await EntityService.InitializeAsync();
         SetupTagsSelectList();
         NewStartDatetime = EditingActivity.Start;
         NewEndDatetime = EditingActivity.End;
@@ -74,7 +77,8 @@
     
     private void SetupTagsSelectList()
     {
-        TagsSelectList = new SelectList(Tags, "TagId", "Name");
+        var tags = EntityService.GetTags();
+        TagsSelectList = new SelectList(tags, "Id", "Name");
         foreach (var item in TagsSelectList)
         {
             if (Convert.ToInt32(item.Value) == EditingActivity.TagId)
@@ -106,21 +110,22 @@
     
     private async Task OnConfirmClick()
     {
-        if (!TagsStateService.AreStartEndDatesValid(NewStartDatetime, NewEndDatetime))
+        if (!EntityService.AreStartEndDatesValid(NewStartDatetime, NewEndDatetime))
             return;
         
         var newTagId = Convert.ToInt32(TagsSelectList.First(item => item.Selected).Value);
 
-        await TagsStateService.EditActivity(EditingActivity, newTagId, NewStartDatetime, NewEndDatetime);
-        await TagsStateService.SetupTagsAndActivities();
+        await EntityService.EditActivityAsync(EditingActivity, newTagId, NewStartDatetime, NewEndDatetime);
+        
+        // await TagsStateService.SetupTagsAndActivities();
         
         await OnFinishModalCallback.InvokeAsync();
     }
 
     private async Task OnDeleteClick()
     {
-        await TagsStateService.DeleteActivity(EditingActivity.ActivityId);
-        await TagsStateService.SetupTagsAndActivities();
+        await EntityService.DeleteActivityAsync(EditingActivity.Id);
+        // await TagsStateService.SetupTagsAndActivities();
         
         await OnFinishModalCallback.InvokeAsync();
     }

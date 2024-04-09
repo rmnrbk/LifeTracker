@@ -1,21 +1,22 @@
 ﻿@using LifeTracker.Services
 @using LifeTracker.Models
 
-@inject TagsStateService TagsStateService
+@inject EntityService EntityService
+@inject DisplayedTagService DTService
 
 <div class="tags">
-    @foreach (var tag in DisplayedTags)
+    @foreach (var dTag in dTags)
     {
-        <div class="@(TagClassName(tag))" @onclick="() => Toggle(tag)">
+        <div class="@(TagClassName(dTag))" @onclick="() => Toggle(dTag)">
             <div class="title-and-times">
                 <span class="tags__tag-content__title">
-                    @tag.Tag.Name
+                    @dTag.Tag.Name
                 </span>
-                @if (tag.LastStartTime != null ||
-                     tag.LastEndTime != null)
+                @if (dTag.LastStartTime != null ||
+                     dTag.LastEndTime != null)
                 {
                     <span class="last-today-times">
-                        @ToHoursMins(tag.LastStartTime) - @ToHoursMins(tag.LastEndTime)
+                        @ToHoursMins(dTag.LastStartTime) - @ToHoursMins(dTag.LastEndTime)
                     </span>
                 }
                 else
@@ -25,7 +26,7 @@
             </div>
             
             <div class="tags__tag-content__timer">
-                @if (tag.TotalSecondsSpent == 0 && tag.LastSecondsSpent == 0)
+                @if (dTag.TotalSecondsSpent == 0 && dTag.LastSecondsSpent == 0)
                 {
                     <span class="tags__tag-content__timer__total">&nbsp</span>
                     <span class="tags__tag-content__timer__current">&nbsp</span>
@@ -33,10 +34,10 @@
                 else
                 {
                     <span class="tags__tag-content__timer__total">
-                        @ToHoursMins(tag.TotalSecondsSpent)
+                        @ToHoursMins(dTag.TotalSecondsSpent)
                     </span>
                     <span class="tags__tag-content__timer__current">
-                        @ToHoursMins(tag.LastSecondsSpent)
+                        @ToHoursMins(dTag.LastSecondsSpent)
                     </span>
                 }
             </div>
@@ -46,16 +47,18 @@
 
 
 @code {
-
     [Parameter]
     public EventCallback OnClickCallback { get; set; }
 
-    private List<DisplayedTag> DisplayedTags => TagsStateService.DisplayedTags;
+    private List<DisplayedTag> dTags => DTService.DTags;
 
     protected override async Task OnInitializedAsync()
     {
-        await TagsStateService.SetupTagsAndActivities();
-        TagsStateService.SetOnChangeHandler(OnChangeHandler);
+        await EntityService.InitializeAsync();
+        var tags = await EntityService.GetTagsAsync();
+        var activities = await EntityService.GetActivitiesAsync();
+        DTService.Initialize(tags, activities);
+        DTService.SetOnChangeHandler(OnChangeHandler);
 
         await UpdateView();
     }
@@ -65,10 +68,18 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void Toggle(DisplayedTag displayedTag)
+    private async void Toggle(DisplayedTag dTag)
     {
-        await TagsStateService.Toggle(displayedTag);
+        if (dTag.Status == DisplayedTagStatus.Inactive)
+        {
+            await EntityService.CreateActivityAsync(dTag.Tag.Id, DateTime.Now);
+        }
+        else
+        {
+            await EntityService.FinishRunningActivityAsync(dTag.Tag.Id, DateTime.Now);
+        }
 
+        DTService.Update(dTag);
         await UpdateView();
     }
 
@@ -97,5 +108,5 @@
         DisplayedTagStatus.DependentlyActive => "tags__tag-content tags__tag-content__dependently-active",
         DisplayedTagStatus.DependentlyDisabled => "tags__tag-content tags__tag-content__dependently-disabled",
         _ => "tags__tag-content tags__tag-content__directly-active"
-        };
+    };
 }

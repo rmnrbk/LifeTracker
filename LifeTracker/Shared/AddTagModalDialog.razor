@@ -1,8 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering
-@using LifeTracker.Models
+@using LifeTracker.Models.BaseModels
 @using LifeTracker.Services
 
-@inject TagsStateService TagsStateService
+@inject EntityService EntityService
 
 <div class="modal fade show my-background" aria-modal="true" @onkeydown="@OnKeyDown">
     <div class="modal-dialog">
@@ -33,31 +33,30 @@
     [Parameter]
     public EventCallback OnFinishModalCallback { get; set; }
     
-    private List<DisplayedTag> DisplayedTags => TagsStateService.DisplayedTags;
+    private List<Tag> Tags => EntityService.GetTags();
     private MultiSelectList ParentsMSList;
-    
     private string NewTagName { get; set; } = "";
     private List<int> DisabledItemIds { get; set; } = new();
     private List<int> SelectedItemIds { get; set; } = new();
 
     protected override void OnInitialized()
     {
-        ParentsMSList = new MultiSelectList(DisplayedTags, "Tag.TagId", "Tag.Name");
+        ParentsMSList = new MultiSelectList(Tags, "Id", "Name");
     }
     
-    private async void HandleItemClick(SelectListItem clickedItem)
+    private async Task HandleItemClick(SelectListItem clickedItem)
     {
         var clickedTagId = Convert.ToInt32(clickedItem.Value);
         clickedItem.Selected = !clickedItem.Selected;
         
-        SetupDisabledAndSelectedItems(clickedTagId, clickedItem.Selected);
+        await SetupDisabledAndSelectedItems(clickedTagId, clickedItem.Selected);
         UpdateParentsMSList();
         await InvokeAsync(StateHasChanged);
     }
 
-    private void SetupDisabledAndSelectedItems(int newParentId, bool added)
+    private async Task SetupDisabledAndSelectedItems(int newParentId, bool added)
     {
-        var allParentAndChildIds = TagsStateService.GetAllParentsAndChildrenIds(newParentId);
+        var allParentAndChildIds = await EntityService.GetAllParentsAndChildrenIdsAsync(newParentId);
         
         if (added)
         {
@@ -99,8 +98,8 @@
     
     private async Task OnConfirmClick()
     {
-        await TagsStateService.CreateTag(NewTagName, SelectedItemIds);
-        await TagsStateService.SetupTagsAndActivities();
+        await EntityService.CreateTagAsync(NewTagName, SelectedItemIds);
+        // await EntityService.SetupTagsAndActivities();
 
         await OnFinishModalCallback.InvokeAsync();
     }
