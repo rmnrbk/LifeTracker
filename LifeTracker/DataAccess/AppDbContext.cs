@@ -13,11 +13,4 @@ public class AppDbContext: DbContext
     {
         Database.EnsureCreated();
     }
-    
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    // {
-    //     optionsBuilder.UseNpgsql("Host=db;Port=5432;Database=relfdb;Username=relfuser;Password=relfpassword");
-    //     AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-    //     // optionsBuilder.UseSqlite("Data Source=tag.db");
-    // }
 }
