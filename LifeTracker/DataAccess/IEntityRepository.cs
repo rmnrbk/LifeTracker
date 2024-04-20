@@ -11,7 +11,7 @@ public interface IEntityRepository
     List<Activity> GetActivities();
     Task<List<Activity>> GetActivitiesAsync();
     Task<List<Activity>> GetActivitiesByTagIdAsync(int tagId);
-    Task CreateTagAsync(Tag tag);
+    Task CreateTagAsync(Tag tag, List<int> parentIds);
     Task CreateActivityAsync(Activity activity);
     Task EditActivityAsync(Activity editedActivity);
     Task EditTagAsync(Tag editedTag);

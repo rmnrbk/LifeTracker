@@ -43,18 +43,13 @@ public class EntityService : BaseService
     {
         if (!IsNameValid(name) || NameAlreadyExist(name))
             return;
-
-        var parents = (await _entityRepository.GetTagsAsync())
-            .Where(t => parentIds.Contains(t.Id))
-            .ToList();
         
         var tag = new Tag
         {
             Name = name,
-            Parents = parents
         };
 
-        await _entityRepository.CreateTagAsync(tag);
+        await _entityRepository.CreateTagAsync(tag, parentIds);
     }
     
     public async Task CreateActivityAsync(int tagId, DateTime start, DateTime? end=null)
@@ -77,17 +72,17 @@ public class EntityService : BaseService
         var newParents = new List<Tag>();
         
         var tags = await GetTagsAsync();
-        var existingTag = tags.First(t => t.Id == tagId);
+        var tag = tags.First(t => t.Id == tagId);
         
         foreach (var parentId in newDirectParentIds)
         {
             newParents.Add(tags.First(t => t.Id == parentId));
         }
         
-        existingTag.Name = newTagName;
-        existingTag.Parents = newParents;
+        tag.Name = newTagName;
+        tag.Parents = newParents;
         
-        await _entityRepository.EditTagAsync(existingTag);
+        await _entityRepository.EditTagAsync(tag);
     }
     
     public async Task DeleteTagAsync(int tagId)

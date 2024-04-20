@@ -81,10 +81,18 @@ public class EntityRepository : IEntityRepository
         return activities;
     }
 
-    public async Task CreateTagAsync(Tag tag)
+    public async Task CreateTagAsync(Tag tag, List<int> parentIds)
     {
-        await using var ctx = await _ctxFactory.CreateDbContextAsync();
         tag.OwnerID = _ownerId;
+        
+        await using var ctx = await _ctxFactory.CreateDbContextAsync();
+        
+        var parents = ctx.Tags
+            .Where(t => parentIds.Contains(t.Id))
+            .ToList();
+
+        tag.Parents = parents;
+        
         ctx.Tags.Add(tag);
         await ctx.SaveChangesAsync();
     }
@@ -107,8 +115,20 @@ public class EntityRepository : IEntityRepository
 
     public async Task EditTagAsync(Tag editedTag)
     {
+        var parentIds = editedTag.Parents.Select(t => t.Id);
         await using var ctx = await _ctxFactory.CreateDbContextAsync();
-        ctx.Entry(editedTag).State = EntityState.Modified;
+        var newParents = ctx.Tags
+            .Where(t => parentIds.Contains(t.Id))
+            .ToList();
+        var tag = ctx.Tags
+            .Include(t => t.Parents)
+            .Include(t => t.Children)
+            .First(t => t.Id == editedTag.Id);
+        
+        tag.Name = editedTag.Name;
+        tag.Parents = newParents;
+        
+        ctx.Entry(tag).State = EntityState.Modified;
         await ctx.SaveChangesAsync();
     }
     

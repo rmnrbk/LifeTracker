@@ -59,7 +59,9 @@
 
     private async Task OnEditActivityModalCloseClick()
     {
-        DTService.Update(EditingActivity.TagId);
+        var tags = await EntityService.GetTagsAsync();
+        var activities = await EntityService.GetActivitiesAsync();
+        DTService.Initialize(tags, activities);
         IsVisibleEditActivityModal = false;
         EditingActivity = null;
         

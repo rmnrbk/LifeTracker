@@ -1,7 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering
-@using LifeTracker.Models
 @using LifeTracker.Services
-@using NuGet.Packaging
 
 @inject EntityService EntityService
 
@@ -126,6 +124,7 @@
         
         allParentsParentAndChildIds.AddRange(await EntityService.GetAllParentsAndChildrenIdsAsync(EditingTagId));
         allParentsParentAndChildIds.RemoveAll(id => id == clickedTagId);
+        allParentsParentAndChildIds.RemoveAll(id => directParentIds.Contains(id));
         
         SelectedItemIds = directParentIds;
         DisabledItemIds = allParentsParentAndChildIds;

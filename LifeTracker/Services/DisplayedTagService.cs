@@ -27,12 +27,6 @@ public class DisplayedTagService
     {
         DisplayedTag.OnChange += onChangeHandler;
     }
-
-    public void Update(int tagId)
-    {
-        var hDTag = DTags.First(t => t.Tag.Id == tagId);
-        Update(hDTag);
-    }
     
     public void Update(DisplayedTag hDTag)
     {
