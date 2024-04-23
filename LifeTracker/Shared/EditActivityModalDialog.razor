@@ -117,8 +117,6 @@
 
         await EntityService.EditActivityAsync(EditingActivity, newTagId, NewStartDatetime, NewEndDatetime);
         
-        // await TagsStateService.SetupTagsAndActivities();
-        
         await OnFinishModalCallback.InvokeAsync();
     }
 

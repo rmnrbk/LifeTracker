@@ -150,10 +150,10 @@ public class EntityService : BaseService
         // TODO: validate properly
         if (newStartDatetime >= newEndDatetime)
             return false;
-        if (Math.Abs((newStartDatetime - DateTime.Now).TotalDays) > 7)
+        if (Math.Abs((newStartDatetime - DateTime.Now).TotalDays) > 30)
             return false;
         if (newEndDatetime is not null &&
-            Math.Abs((newEndDatetime.Value - newStartDatetime).TotalDays) > 7)
+            Math.Abs((newEndDatetime.Value - newStartDatetime).TotalDays) > 30)
             return false;
         
         return true;
