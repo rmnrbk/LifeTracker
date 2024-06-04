@@ -4,46 +4,56 @@
 @inject EntityService EntityService
 @inject DisplayedTagService DTService
 
-<div class="tags">
-    @foreach (var dTag in dTags)
-    {
-        <div class="@(TagClassName(dTag))" @onclick="() => Toggle(dTag)">
-            <div class="title-and-times">
-                <span class="tags__tag-content__title">
-                    @dTag.Tag.Name
-                </span>
-                @if (dTag.LastStartTime != null ||
-                     dTag.LastEndTime != null)
-                {
-                    <span class="last-today-times">
-                        @ToHoursMins(dTag.LastStartTime) - @ToHoursMins(dTag.LastEndTime)
-                    </span>
-                }
-                else
-                {
-                    <span class="last-today-times">&nbsp</span>
-                }
-            </div>
-            
-            <div class="tags__tag-content__timer">
-                @if (dTag.TotalSecondsSpent == 0 && dTag.LastSecondsSpent == 0)
-                {
-                    <span class="tags__tag-content__timer__total">&nbsp</span>
-                    <span class="tags__tag-content__timer__current">&nbsp</span>
-                }
-                else
-                {
-                    <span class="tags__tag-content__timer__total">
-                        @ToHoursMins(dTag.TotalSecondsSpent)
-                    </span>
-                    <span class="tags__tag-content__timer__current">
-                        @ToHoursMins(dTag.LastSecondsSpent)
-                    </span>
-                }
-            </div>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            @foreach (var dTag in dTags)
+            {
+                <div class="tag-content @(TagClassName(dTag)) mb-3" @onclick="() => Toggle(dTag)">
+                    <div class="title-and-times d-flex justify-content-between align-items-center">
+                        <div class="tags__tag-content__title">
+                            @dTag.Tag.Name
+                        </div>
+                        @if (dTag.TotalSecondsSpent == 0 && dTag.LastSecondsSpent == 0)
+                        {
+                            <div class="tags__tag-content__timer__total">&nbsp</div>
+                        }
+                        else
+                        {
+                            <div class="tags__tag-content__timer__total">
+                                @ToHoursMins(dTag.TotalSecondsSpent)
+                            </div>
+                        }
+                    </div>
+                    <div class="tags__tag-content__timer d-flex justify-content-between align-items-center">
+                        @if (dTag.LastStartTime != null || dTag.LastEndTime != null)
+                        {
+                            <div class="last-today-times">
+                                @ToHoursMins(dTag.LastStartTime) - @ToHoursMins(dTag.LastEndTime)
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="last-today-times">&nbsp</div>
+                        }
+                        @if (dTag.LastSecondsSpent != 0)
+                        {
+                            <div class="tags__tag-content__timer__current">
+                                @ToHoursMins(dTag.LastSecondsSpent)
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="tags__tag-content__timer__current">&nbsp</div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
-    }
+    </div>
 </div>
+
+
 
 
 @code {
