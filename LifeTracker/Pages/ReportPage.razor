@@ -55,6 +55,7 @@
         <div class="help-filter-btns">
             <button class="btn btn-primary" @onclick="async () => await OnSetDefaultClicked()">Прямые</button>
             <button class="btn btn-primary" @onclick="async () => await OnSetAllInPeriodClicked()">Косвенные</button>
+            <button class="btn btn-primary" @onclick="async () => await OnClearAllClicked()">Очистить</button>
         </div>
     </div>
 </div>
@@ -219,6 +220,17 @@
         foreach (var item in TagsMSList)
         {
             item.Selected = directlyActiveIds.Contains(Convert.ToInt32(item.Value));
+        }
+        
+        UpdateData();
+        await pieChart.UpdateAsync(chartData, pieChartOptions);
+    }
+    
+    private async Task OnClearAllClicked()
+    {
+        foreach (var item in TagsMSList)
+        {
+            item.Selected = false;
         }
         
         UpdateData();
