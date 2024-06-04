@@ -43,21 +43,23 @@
 @foreach (var uniqueDate in UniqueDates)
 {
     <span class="unique-date-label">@ToDayMonth(uniqueDate)</span>
-    
+
     <div class="activities">
         @foreach (Activity activity in DisplayedActivities.Where(a => a.Start.Date == uniqueDate.Date))
         {
             <div class="activity-content" @onclick="() => OnActivityClicked(activity)">
-                <span class="activity-title">
-                    @activity.Tag!.Name
-                </span>
-                <div class="activity-dates">
-                    <span class="activity-start-datetime">
-                        @ToHoursMins(activity.Start)
+                <div class="activity-info">
+                    <span class="activity-title">
+                        @activity.Tag!.Name
                     </span>
-                    <span class="activity-end-datetime">
-                        @ToHoursMins(activity.End)
-                    </span>
+                    <div class="activity-dates">
+                        <span class="activity-start-datetime">
+                            @ToHoursMins(activity.Start)
+                        </span>
+                        <span class="activity-end-datetime">
+                            @ToHoursMins(activity.End)
+                        </span>
+                    </div>
                 </div>
             </div>
         }

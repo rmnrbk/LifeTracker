@@ -1,6 +1,7 @@
 ﻿.all-datetimes-block {
     margin-top: 20px;
     margin-bottom: 20px;
+    margin-left: 5px;   /* for mobile */
     display: flex;
     align-items: center;
 }
@@ -28,14 +29,15 @@
 
 .activity-content {
     margin-bottom: 10px;
-    padding-left: 7px;
-    height: 70px;
+    padding: 5px 25px 5px 10px;
     border: 3px solid black;
     border-radius: 8px;
-    width: 400px;
+    width: 100%;
+    max-width: 400px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    box-sizing: border-box;
 
     cursor: pointer;
 }
@@ -44,24 +46,23 @@
     background-color: #f0f8ff;
 }
 
+.activity-info {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .activity-title {
     font-size: 20px;
-    width: 260px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .activity-dates {
-    margin-right: 40px;
     font-size: 20px;
+    display: flex;
+    flex-direction: column;
 }
-
-.activity-start-datetime {
-    display: block;
-}
-
-.activity-end-datetime {
-    display: block;
-}
-
