@@ -17,8 +17,9 @@
                 @foreach(var parentItem in ParentsMSList)
                 {
                     <div class="parent-item">
-                        <input id="parent-item-id-@parentItem.Value" type="checkbox" @bind="parentItem.Selected" @onclick="(()=>HandleItemClick(parentItem))" disabled="@parentItem.Disabled"/>
-                        <label class="@(parentItem.Disabled ? "parent-item-label-disabled" : "parent-item-label")" for="parent-item-id-@parentItem.Value">@parentItem.Text</label>
+                        <input class="parent-item-checkbox" id="parent-item-id-@parentItem.Value" type="checkbox" @bind="parentItem.Selected" @onclick="(()=>HandleItemClick(parentItem))" disabled="@parentItem.Disabled"/>
+                        
+                        <label  class="parent-item-label @(parentItem.Disabled ? "parent-item-label-disabled" : "")" for="parent-item-id-@parentItem.Value">@parentItem.Text</label>
                     </div>
                 }
             </div>
