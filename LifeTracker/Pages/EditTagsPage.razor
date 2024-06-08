@@ -24,8 +24,8 @@
 <div class="tags">
     @foreach (var tag in Tags)
     {
-        <div class="tags__tag-content" @onclick="() => ToggleEditTagModal(tag)">
-            <span class="tags__tag-content__title">
+        <div class="tag-block" @onclick="() => ToggleEditTagModal(tag)">
+            <span class="tag-name">
                 @tag.Name
             </span>
         </div>
