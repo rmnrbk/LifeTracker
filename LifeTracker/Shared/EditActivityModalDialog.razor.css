@@ -4,18 +4,18 @@
 }
 
 .my-modal-body {
+    padding-top: 7px;
+}
+
+.all-datetimes-block {
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: 15px;
 }
 
 .datetime-block {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.datetime-label {
-    margin-right: 15px;
 }
 
 .tag-name-input {
@@ -59,3 +59,23 @@
     border-color: #b0193e;
 }
 
+@media (min-width: 576px) {
+}
+
+@media (max-width: 575.98px) {
+    .all-datetimes-block {
+        flex-direction: column;
+    }
+    
+    .datetime-block {
+        margin-bottom: 10px;
+    }
+
+    .datetime-block:last-child {
+        margin-bottom: 0px;
+    }
+    
+    .dash-between-dates {
+        display: none;
+    }
+}

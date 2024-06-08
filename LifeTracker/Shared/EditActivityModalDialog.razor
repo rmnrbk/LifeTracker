@@ -7,7 +7,7 @@
 @inject EntityService EntityService
 
 
-<div class="modal fade show my-background" aria-modal="true" @onkeydown="@OnKeyDown" autofocus >
+<div class="modal fade show my-background" aria-modal="true" @onkeydown="@OnKeyDown" autofocus>
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -15,29 +15,20 @@
                 <button type="button" class="btn btn-primary" @onclick="OnCloseClick">x</button>
             </div>
             <div class="modal-body my-modal-body">
-                @if (TagsSelectList != null)
-                {
-                    <div id="tags-block">
-                        @foreach (var tagItem in TagsSelectList)
-                        {
-                            <div class="tag-item">
-                                <input class="tag-item-radio" id="tag-item-id-@tagItem.Value" type="radio" checked="@tagItem.Selected" @bind="tagItem.Selected" @onclick="() => HandleItemClick(tagItem)" name="radioname"/>
-                                <label class="tag-item-label" for="tag-item-id-@tagItem.Value">@tagItem.Text</label>
-                            </div>
-                        }
-                    </div>
-                }
-                <div id="all-datetimes-block">
+                <div class="all-datetimes-block">
                     <div class="datetime-block">
-                        <label for="start-datetime" class="datetime-label">От:</label>
                         <input
                             type="datetime-local"
                             id="start-datetime"
                             class="date-time-picker"
                             @bind="NewStartDatetime"/>
                     </div>
+
+                    <div class="dash-between-dates">
+                        <Icon Name="IconName.DashLg" />
+                    </div>
+
                     <div class="datetime-block">
-                        <label for="end-datetime" class="datetime-label">До:</label>
                         <input
                             type="datetime-local"
                             id="end-datetime"
@@ -45,6 +36,19 @@
                             @bind="NewEndDatetime"/>
                     </div>
                 </div>
+
+                @if (TagsSelectList != null)
+                {
+                <div class="tags-block">
+                    @foreach (var tagItem in TagsSelectList)
+                    {
+                    <div class="tag-item">
+                        <input class="tag-item-radio" id="tag-item-id-@tagItem.Value" type="radio" checked="@tagItem.Selected" @bind="tagItem.Selected" @onclick="() => HandleItemClick(tagItem)" name="radioname"/>
+                        <label class="tag-item-label" for="tag-item-id-@tagItem.Value">@tagItem.Text</label>
+                    </div>
+                    }
+                </div>
+                }
             </div>
             <div class="modal-footer edit-footer">
                 <button type="button" class="btn btn-delete" @onclick="OnDeleteClick">Удалить</button>
