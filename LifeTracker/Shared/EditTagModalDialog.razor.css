@@ -9,14 +9,24 @@
 }
 
 .parent-item {
-    display: block;
+    display: flex;
     height: 30px;
     font-size: 20px;
 }
 
+.parent-item-checkbox {
+    margin-right: 5px;
+}
+
 .parent-item-label {
-    margin-right: 20px;
     user-select: none;
+    max-width: 80%;
+    margin-right: 20px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
 }
 
 .parent-item-label:hover {
@@ -27,8 +37,6 @@
 .parent-item-label-disabled {
     font-weight: bold;
     text-decoration: line-through;
-    margin-right: 20px;
-    user-select: none;
 }
 
 .edit-footer {
@@ -43,15 +51,14 @@
     border-color: #b0193e;
 }
 
-#select-parents-label {
-    height: 30px;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-#editing-tag-sign {
+.editing-tag-sign {
     color: #1861ac;
     font-style: italic;
     user-select: none;
 }
 
+#select-parents-label {
+    height: 30px;
+    font-size: 20px;
+    font-weight: bold;
+}
