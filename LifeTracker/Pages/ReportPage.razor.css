@@ -1,8 +1,18 @@
 ﻿.piechart-and-filter {
     display: flex;
-    justify-content: space-around;
+    flex-direction: row;
+    width: 100%;
     margin-top: 20px;
 }
+
+.my-piechart {
+    width: 60%;
+}
+
+.tags-filter-block {
+    width: 40%;
+}
+
 
 .all-datetimes-block {
     margin-top: 20px;
@@ -22,4 +32,34 @@
 .tags-filter {
     margin-top: 20px;
     margin-bottom: 20px;
+}
+
+.tag-item {
+    display: flex;
+}
+
+.tag-item-radio {
+    margin-right: 5px;
+}
+
+.tag-item-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 80%;
+}
+
+
+@media (max-width: 1172px) {
+    .piechart-and-filter {
+        flex-direction: column;
+    }
+
+    .my-piechart {
+        width: 100%;
+    }
+
+    .tags-filter-block {
+        width: 100%;
+    }
 }

@@ -7,7 +7,7 @@
 
 <div class="piechart-and-filter">
     <div class="my-piechart">
-        <PieChart @ref="pieChart" Width="500" Class="mb-5"/>
+        <PieChart @ref="pieChart" Width="80" WidthUnit="Unit.Percentage"/>
     </div>
 
     <div class="tags-filter-block">
@@ -45,7 +45,7 @@
                 @foreach (var tagItem in TagsMSList)
                 {
                     <div class="tag-item">
-                        <input id="tag-item-id-@tagItem.Value" type="checkbox" @bind="tagItem.Selected" @onclick="() => HandleItemClick(tagItem)"/>
+                        <input class="tag-item-radio" id="tag-item-id-@tagItem.Value" type="checkbox" @bind="tagItem.Selected" @onclick="() => HandleItemClick(tagItem)"/>
                         <label class="tag-item-label" for="tag-item-id-@tagItem.Value">@tagItem.Text</label>
                     </div>
                 }
